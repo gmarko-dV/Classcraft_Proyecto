@@ -17,27 +17,23 @@
   <section class="user-info">
     <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
     <p>Rol: <%= user.role %></p>
-    <p>Accede a tus materiales de aprendizaje, tareas y más.</p>
+    <p>Oro: <%= user.gold %></p>
+    <p>Personaje: <%= user.character || 'Sin personaje asignado' %></p>
+    
+    <% if (user.character && user.character !== 'Sin personaje asignado') { %>
+      <img src="/images/<%= user.character.toLowerCase() %>.png" alt="<%= user.character %>" width="150">
+    <% } else { %>
+      <p>Aún no has seleccionado un personaje.</p>
+    <% } %>
   </section>
 
   <section class="user-actions">
     <h2>Acciones disponibles</h2>
-    <% if (user.role === 'alumno') { %>
-      <!-- Opciones para el alumno -->
-      <ul>
-        <li><a href="/tasks">Mis tareas</a></li>
-        <li><a href="/courses">Mis cursos</a></li>
-        <li><a href="/grades">Mis calificaciones</a></li>
-      </ul>
-    <% } else if (user.role === 'profesor') { %>
-      <!-- Opciones para el profesor -->
-      <ul>
-        <li><a href="/create-course">Crear curso</a></li>
-        <li><a href="/manage-students">Gestionar estudiantes</a></li>
-        <li><a href="/grade-students">Calificar estudiantes</a></li>
-        <li><a href="/view-reports">Ver informes</a></li>
-      </ul>
-    <% } %>
+    <ul>
+      <li><a href="/tasks">Mis tareas</a></li>
+      <li><a href="/courses">Mis cursos</a></li>
+      <li><a href="/grades">Mis calificaciones</a></li>
+    </ul>
   </section>
 
   <footer>

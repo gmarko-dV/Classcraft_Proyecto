@@ -13,22 +13,41 @@ router.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, '../views', 'register.html'));
 });
 
-// Ruta para registrar a un usuario (con rol, nombre, apellido y contraseña)
+// Ruta para registrar a un usuario
 router.post('/register', (req, res) => {
-  const { first_name, last_name, email, password, confirm_password, role } = req.body;
+  const { first_name, last_name, email, password, role } = req.body;
 
-  // Verificar que las contraseñas coinciden
-  if (password !== confirm_password) {
-    return res.status(400).send('Las contraseñas no coinciden');
-  }
-
-  const query = 'INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)';
-  db.query(query, [first_name, last_name, email, password, role], (err, result) => {
+  // Insertar en la tabla users
+  const queryUser = 'INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)';
+  db.query(queryUser, [first_name, last_name, email, password, role], (err, result) => {
     if (err) {
-      console.error('Error en registro: ', err);
+      console.error('Error en registro de usuario: ', err);
       return res.status(500).send('Error en el registro');
     }
-    res.redirect('/login');
+
+    const userId = result.insertId;
+
+    if (role === 'alumno') {
+      // Insertar en la tabla students
+      const queryStudent = 'INSERT INTO students (user_id) VALUES (?)';
+      db.query(queryStudent, [userId], (err, result) => {
+        if (err) {
+          console.error('Error al insertar alumno: ', err);
+          return res.status(500).send('Error al registrar alumno');
+        }
+        res.redirect('/login');
+      });
+    } else if (role === 'profesor') {
+      // Insertar en la tabla teachers
+      const queryTeacher = 'INSERT INTO teachers (user_id, subject) VALUES (?, ?)';
+      db.query(queryTeacher, [userId, req.body.subject], (err, result) => {
+        if (err) {
+          console.error('Error al insertar profesor: ', err);
+          return res.status(500).send('Error al registrar profesor');
+        }
+        res.redirect('/login');
+      });
+    }
   });
 });
 
@@ -72,31 +91,37 @@ router.get('/choose-character', (req, res) => {
   res.render('choose-character');
 });
 
-// Guardar personaje elegido
+// Ruta para guardar el personaje elegido
 router.post('/select-character', (req, res) => {
   const selectedCharacter = req.body.character;
   const userId = req.session.user.id;
 
-  const query = 'UPDATE users SET `character` = ? WHERE id = ?';
+  if (!selectedCharacter) {
+    return res.status(400).send('No se ha seleccionado un personaje');
+  }
+
+  // Usamos backticks para escapar la palabra reservada `character`
+  const query = 'UPDATE students SET `character` = ? WHERE user_id = ?';
   db.query(query, [selectedCharacter, userId], (err, result) => {
     if (err) {
       console.error('Error al guardar personaje: ', err);
       return res.status(500).send('Error al guardar personaje');
     }
 
-    // Actualiza sesión y redirige al dashboard
+    // Actualiza la sesión y redirige al dashboard
     req.session.user.character = selectedCharacter;
     res.redirect('/dashboard');
   });
 });
 
-// Ruta para logout
+// Ruta para cerrar sesión
 router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
+      console.error('Error al destruir la sesión: ', err);
       return res.status(500).send('Error al cerrar sesión');
     }
-    res.redirect('/');
+    res.redirect('/login');  // Redirige al login después de cerrar sesión
   });
 });
 
