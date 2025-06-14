@@ -42,19 +42,51 @@ router.post('/login', (req, res) => {
       console.error('Error en login: ', err);
       return res.status(500).send('Error en el login');
     }
+
     if (result.length > 0) {
-      // Guardamos la información del usuario en la sesión
+      const user = result[0];
       req.session.user = {
-        id: result[0].id,
-        first_name: result[0].first_name,
-        last_name: result[0].last_name,
-        email: result[0].email,
-        role: result[0].role
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
+        character: user.character
       };
-      res.redirect('/dashboard');
+
+      // Si no tiene personaje, redirige a selección
+      if (!user.character) {
+        return res.redirect('/choose-character');
+      }
+
+      return res.redirect('/dashboard');
     } else {
       res.status(400).send('Credenciales incorrectas');
     }
+  });
+});
+
+// Vista para elegir personaje
+router.get('/choose-character', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('choose-character');
+});
+
+// Guardar personaje elegido
+router.post('/select-character', (req, res) => {
+  const selectedCharacter = req.body.character;
+  const userId = req.session.user.id;
+
+  const query = 'UPDATE users SET `character` = ? WHERE id = ?';
+  db.query(query, [selectedCharacter, userId], (err, result) => {
+    if (err) {
+      console.error('Error al guardar personaje: ', err);
+      return res.status(500).send('Error al guardar personaje');
+    }
+
+    // Actualiza sesión y redirige al dashboard
+    req.session.user.character = selectedCharacter;
+    res.redirect('/dashboard');
   });
 });
 

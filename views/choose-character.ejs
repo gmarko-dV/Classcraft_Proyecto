@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Escoge tu personaje</title>
+</head>
+<body>
+  <h1>Escoge tu personaje</h1>
+  <form action="/select-character" method="POST">
+    <div>
+      <input type="radio" name="character" value="Guardian" id="guardian" required>
+      <label for="guardian">
+        <strong>Guardian</strong><br>
+        <img src="/images/guardian.png" alt="Guardian" width="150"><br>
+        <span style="color:red;">80 HP</span> | <span style="color:blue;">30 AP</span>
+      </label>
+    </div>
+
+    <div>
+      <input type="radio" name="character" value="Mage" id="mage">
+      <label for="mage">
+        <strong>Mage</strong><br>
+        <img src="/images/mage.png" alt="Mage" width="150"><br>
+        <span style="color:red;">30 HP</span> | <span style="color:blue;">50 AP</span>
+      </label>
+    </div>
+
+    <div>
+      <input type="radio" name="character" value="Healer" id="healer">
+      <label for="healer">
+        <strong>Healer</strong><br>
+        <img src="/images/healer.png" alt="Healer" width="150"><br>
+        <span style="color:red;">50 HP</span> | <span style="color:blue;">35 AP</span>
+      </label>
+    </div>
+
+    <br>
+    <button type="submit">Seleccionar</button>
+  </form>
+</body>
+</html>

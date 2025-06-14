@@ -7,7 +7,7 @@ const port = 3000;
 // Configuración para usar body parser (enviar datos en formularios)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, 'public'))); // Configurar archivos estáticos (css, js, imágenes)
 // Configurar sesión
 app.use(session({
   secret: 'mi_clave_secreta',  
