@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Classcraft - Dashboard Profesor</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/logout">Cerrar sesión</a></li>
+        <li><a href="/store">Tienda</a></li>  <!-- Enlace a la tienda -->
+      </ul>
+    </nav>
+  </header>
+
+  <section class="user-info">
+    <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
+    <p>Rol: <%= user.role %></p>
+
+    <!-- Imagen de perfil del profesor -->
+    <img src="/images/professor-profile.png" alt="Imagen de perfil del profesor" width="150" style="border-radius: 50%;">
+
+    <!-- Mostrar la asignatura del profesor -->
+    <p>Asignatura: <%= user.subject || 'Sin asignatura asignada' %></p> <!-- Mostrar la asignatura -->
+  </section>
+
+  <section class="teacher-actions">
+    <h2>Opciones del Profesor</h2>
+    <ul>
+      <li><a href="/create-class">Crear Clase</a></li>
+      <li><a href="/add-student">Agregar Estudiante</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>

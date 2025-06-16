@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tienda</title>
+</head>
+<body>
+  <h1>Bienvenido a la tienda, <%= user.first_name %>!</h1>
+  <p>Oro disponible: <%= user.gold %></p>
+
+  <h2>Artículos disponibles:</h2>
+
+  <form action="/purchase" method="POST">
+    <ul>
+      <% storeItems.forEach(item => { %>
+        <li>
+          <h3><%= item.name %></h3>
+          <p><%= item.description %></p>
+          <p>Precio: <%= item.price %> oro</p>
+          <button type="submit" name="item_id" value="<%= item.id %>">Comprar</button>
+        </li>
+      <% }); %>
+    </ul>
+  </form>
+
+</body>
+</html>
