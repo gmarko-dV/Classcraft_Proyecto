@@ -18,11 +18,10 @@
   <section class="user-info">
     <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
     <p>Rol: <%= user.role %></p>
-    <p>Oro disponible: <%= user.gold %></p>
-    <p>Personaje: <%= user.character || 'Sin personaje asignado' %></p>
-
-    <% if (user.character) { %>
-      <img src="/images/<%= user.character.toLowerCase() %>.png" alt="<%= user.character %>" width="150">
+    <p>Oro disponible: <%= student.oro %></p> <!-- Ahora 'student.oro' -->
+    <p>Personaje: <%= student.personaje || 'Sin personaje asignado' %></p> <!-- Mostrar el personaje -->
+    <% if (student.personaje) { %>
+      <img src="/images/<%= student.personaje.toLowerCase() %>.png" alt="<%= student.personaje %>" width="150">
     <% } else { %>
       <p>Aún no has seleccionado un personaje.</p>
     <% } %>

@@ -20,7 +20,7 @@
     <p>Rol: <%= user.role %></p>
 
     <!-- Imagen de perfil del profesor -->
-    <img src="/images/professor-profile.png" alt="Imagen de perfil del profesor" width="150" style="border-radius: 50%;">
+    <img src="/images/professor-profile.png" alt="Imagen de perfil del profesor" width="150" style="border-radius: 50%;"> 
 
     <!-- Mostrar la asignatura del profesor -->
     <p>Asignatura: <%= user.subject || 'Sin asignatura asignada' %></p> <!-- Mostrar la asignatura -->
@@ -29,9 +29,35 @@
   <section class="teacher-actions">
     <h2>Opciones del Profesor</h2>
     <ul>
-      <li><a href="/create-class">Crear Clase</a></li>
+      <li><a href="/create-class">Crear Clase</a></li> <!-- Opción para crear clase, siempre visible -->
       <li><a href="/add-student">Agregar Estudiante</a></li>
     </ul>
+  </section>
+
+  <section class="teacher-classes">
+    <h2>Mis Clases</h2>
+
+    <% if (showCreateClassButton) { %>
+      <p><%= message %></p>
+      <a href="/create-class">Crear una nueva clase</a> <!-- Solo muestra si no tiene clases asignadas -->
+    <% } else { %>
+      <% studentsByClass.forEach(classGroup => { %>
+        <div class="class">
+          <h3>Clase: <%= classGroup.class.nombre %> - <%= classGroup.class.asignatura %></h3>
+
+          <% classGroup.sections.forEach(classSection => { %>
+            <h4>Sección: <%= classSection.nombre %></h4>
+
+            <h5>Estudiantes:</h5>
+            <ul>
+              <% classGroup.students.forEach(student => { %>
+                <li><%= student.nombre %> <%= student.apellido %></li>
+              <% }) %>
+            </ul>
+          <% }) %>
+        </div>
+      <% }) %>
+    <% } %>
   </section>
 
   <footer>

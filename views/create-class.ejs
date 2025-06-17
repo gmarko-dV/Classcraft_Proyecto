@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Clase - Mi Classcraft</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/logout">Cerrar sesión</a></li>
+        <li><a href="/store">Tienda</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section>
+    <h1>Crear una nueva clase</h1>
+    <form action="/create-class" method="POST">
+      <label for="className">Nombre de la clase:</label>
+      <input type="text" id="className" name="className" required><br><br>
+
+      <label for="subject">Asignatura:</label>
+      <input type="text" id="subject" name="subject" value="<%= user.subject || 'Sin asignatura asignada' %>" readonly><br><br>
+
+      <button type="submit">Crear Clase</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>

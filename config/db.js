@@ -5,7 +5,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Tu usuario de MySQL
   password: '123456', // Tu contraseña de MySQL
-  database: 'myclasscraft' // El nombre de tu base de datos
+  database: 'classcraft' // El nombre de tu base de datos
 });
 
 // Conectar a la base de datos
