@@ -44,42 +44,19 @@ router.post('/register', (req, res) => {
         res.redirect('/choose-character');  // Redirige a la página de selección de personaje
       });
     } else if (role === 'profesor') {
-      // Verificar si la asignatura existe en la base de datos
-      const queryCheckSubject = 'SELECT id FROM clases WHERE nombre = ?';
-      db.query(queryCheckSubject, [subject], (err, result) => {
+      // Insertar el profesor con la asignatura
+      const queryTeacher = 'INSERT INTO profesores (id_usuario, asignatura) VALUES (?, ?)';
+      db.query(queryTeacher, [userId, subject], (err, result) => {
         if (err) {
-          console.error('Error al verificar asignatura: ', err);
-          return res.status(500).send('Error al verificar asignatura');
+          console.error('Error al insertar profesor: ', err);
+          return res.status(500).send('Error al registrar profesor');
         }
-
-        let subjectId;
-
-        if (result.length > 0) {
-          subjectId = result[0].id;
-        } else {
-          // Insertar nueva asignatura si no existe
-          const queryInsertSubject = 'INSERT INTO clases (nombre) VALUES (?)';
-          db.query(queryInsertSubject, [subject], (err, result) => {
-            if (err) {
-              console.error('Error al insertar asignatura: ', err);
-              return res.status(500).send('Error al insertar asignatura');
-            }
-            subjectId = result.insertId;
-          });
-        }
-
-        const queryTeacher = 'INSERT INTO profesores (id_usuario, id_asignatura) VALUES (?, ?)';
-        db.query(queryTeacher, [userId, subjectId], (err, result) => {
-          if (err) {
-            console.error('Error al insertar profesor: ', err);
-            return res.status(500).send('Error al registrar profesor');
-          }
-          res.redirect('/login');
-        });
+        res.redirect('/login');  // Redirigir al login después de registrar al profesor
       });
     }
   });
 });
+
 
 // Ruta para login (autenticación)
 router.post('/login', (req, res) => {
@@ -102,32 +79,7 @@ router.post('/login', (req, res) => {
         role: user.rol
       };
 
-      if (user.rol === 'alumno') {
-        const queryStudent = 'SELECT * FROM estudiantes WHERE id_usuario = ?';
-        db.query(queryStudent, [user.id], (err, result) => {
-          if (err) {
-            console.error('Error al obtener datos del alumno: ', err);
-            return res.status(500).send('Error al obtener datos del alumno');
-          }
-          if (result.length > 0) {
-            req.session.user.gold = result[0].oro;
-            req.session.user.character = result[0].personaje;
-          }
-          res.redirect('/dashboard');
-        });
-      } else if (user.rol === 'profesor') {
-        const queryTeacher = 'SELECT * FROM profesores WHERE id_usuario = ?';
-        db.query(queryTeacher, [user.id], (err, result) => {
-          if (err) {
-            console.error('Error al obtener datos del profesor: ', err);
-            return res.status(500).send('Error al obtener datos del profesor');
-          }
-          if (result.length > 0) {
-            req.session.user.character = result[0].personaje;  // Personaje del profesor
-          }
-          res.redirect('/dashboard');
-        });
-      }
+      res.redirect('/dashboard');
     } else {
       res.status(400).send('Credenciales incorrectas');
     }
@@ -142,38 +94,6 @@ router.get('/logout', (req, res) => {
       return res.status(500).send('Error al cerrar sesión');
     }
     res.redirect('/login');  // Redirige al login después de cerrar sesión
-  });
-});
-
-// Ruta para mostrar la página de selección de personaje
-router.get('/choose-character', (req, res) => {
-  if (!req.session.user) return res.redirect('/login');  // Si no está logueado, redirigir al login
-  res.render('choose-character');  // Renderiza la página de selección de personaje
-});
-
-// Ruta para guardar el personaje elegido
-router.post('/select-character', (req, res) => {
-  const { character } = req.body;
-  const userId = req.session.user.id;  // Asumimos que el ID del estudiante está almacenado en la sesión
-
-  // Verificar que se haya seleccionado un personaje
-  if (!character) {
-    return res.status(400).send('No se ha seleccionado un personaje');
-  }
-
-  // Actualizar el personaje en la tabla 'estudiantes'
-  const queryUpdateCharacter = 'UPDATE estudiantes SET personaje = ? WHERE id_usuario = ?';
-  db.query(queryUpdateCharacter, [character, userId], (err, result) => {
-    if (err) {
-      console.error('Error al guardar personaje: ', err);
-      return res.status(500).send('Error al guardar personaje');
-    }
-
-    // Si se actualizó correctamente, actualizamos la sesión con el personaje elegido
-    req.session.user.character = character;
-
-    // Redirigir al dashboard después de guardar el personaje
-    res.redirect('/dashboard');
   });
 });
 
