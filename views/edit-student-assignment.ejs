@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Asignar Estudiante</title>
+</head>
+<body>
+  <h1>Asignar Estudiante:</h1>
+
+  <form action="/edit-student-assignment/<%= student.id_estudiante %>" method="POST">
+    <label for="class">Clase:</label>
+    <select name="class_id" id="class">
+      <% classes.forEach(classItem => { %>
+        <option value="<%= classItem.id %>" <%= classItem.id === student.id_clase ? 'selected' : '' %> >
+          <%= classItem.nombre %> - <%= classItem.asignatura %>
+        </option>
+      <% }) %>
+    </select>
+
+    <label for="section">Sección:</label>
+    <select name="section_id" id="section">
+      <% sections.forEach(section => { %>
+        <option value="<%= section.id %>" <%= section.id === student.id_seccion ? 'selected' : '' %> >
+          <%= section.nombre %>
+        </option>
+      <% }) %>
+    </select>
+
+    <button type="submit">Actualizar Asignación</button>
+  </form>
+</body>
+</html>

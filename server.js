@@ -216,6 +216,7 @@ app.get('/add-student', (req, res) => {
     return res.redirect('/login');  // Si no está logueado o no es profesor, redirigir al login
   }
 
+  // Obtener las clases del profesor
   const queryClasses = 'SELECT * FROM clases WHERE id_profesor = ?';
   db.query(queryClasses, [req.session.user.id], (err, classes) => {
     if (err) {
@@ -223,16 +224,15 @@ app.get('/add-student', (req, res) => {
       return res.status(500).send('Error al obtener clases');
     }
 
+    // Verificar si el profesor tiene clases asignadas
     if (classes.length === 0) {
       return res.status(400).send('El profesor no tiene clases asignadas');
     }
 
+    // Obtener los IDs de las clases asignadas al profesor
     const classIds = classes.map(classItem => classItem.id);
 
-    if (classIds.length === 0) {
-      return res.status(400).send('No se encontraron clases para este profesor.');
-    }
-
+    // Obtener las secciones correspondientes a esas clases
     const querySections = 'SELECT * FROM secciones WHERE id_clase IN (?)';
     db.query(querySections, [classIds], (err, sections) => {
       if (err) {
@@ -240,18 +240,20 @@ app.get('/add-student', (req, res) => {
         return res.status(500).send('Error al obtener secciones');
       }
 
+      // Obtener los estudiantes que están registrados como alumnos
       const queryStudents = `
-        SELECT clase_estudiantes.id_clase, clase_estudiantes.id_seccion, usuarios.nombre, usuarios.apellido, usuarios.id AS student_id
-        FROM clase_estudiantes
-        INNER JOIN usuarios ON clase_estudiantes.id_estudiante = usuarios.id
-        WHERE clase_estudiantes.id_clase IN (${classIds.map(() => '?').join(',')})
-      `;
-      db.query(queryStudents, classIds, (err, students) => {
+        SELECT u.id, u.nombre, u.apellido
+        FROM usuarios u
+        INNER JOIN estudiantes e ON e.id_usuario = u.id
+        WHERE u.rol = 'alumno'`;
+
+      db.query(queryStudents, (err, students) => {
         if (err) {
           console.error('Error al obtener estudiantes: ', err);
           return res.status(500).send('Error al obtener estudiantes');
         }
 
+        // Renderizar la vista para agregar estudiante, pasando las clases, secciones y estudiantes
         res.render('add-student', {
           user: req.session.user,
           classes,
@@ -266,25 +268,134 @@ app.get('/add-student', (req, res) => {
 // Ruta POST para agregar estudiante a la clase
 app.post('/add-student', (req, res) => {
   if (!req.session.user || req.session.user.role !== 'profesor') {
-    return res.redirect('/login');
+    return res.redirect('/login');  // Si no está logueado o no es profesor, redirigir al login
   }
 
   const { class_id, section_id, student_id } = req.body;
 
+  // Verificar que los datos de clase, sección y estudiante estén presentes
   if (!class_id || !section_id || !student_id) {
     return res.status(400).send('Debe seleccionar una clase, sección y un estudiante.');
   }
 
-  const queryInsertStudentToClass = 'INSERT INTO clase_estudiantes (id_clase, id_seccion, id_estudiante) VALUES (?, ?, ?)';
-  db.query(queryInsertStudentToClass, [class_id, section_id, student_id], (err, result) => {
+  // Verificar que el estudiante no esté ya asignado a la clase y sección
+  const queryCheckStudentAssignment = 'SELECT * FROM clase_estudiantes WHERE id_clase = ? AND id_seccion = ? AND id_estudiante = ?';
+  db.query(queryCheckStudentAssignment, [class_id, section_id, student_id], (err, result) => {
     if (err) {
-      console.error('Error al agregar estudiante a la clase: ', err);
-      return res.status(500).send('Error al agregar estudiante');
+      console.error('Error al verificar si el estudiante ya está asignado: ', err);
+      return res.status(500).send('Error al verificar asignación del estudiante');
+    }
+
+    if (result.length > 0) {
+      return res.status(400).send('El estudiante ya está asignado a esta clase y sección.');
+    }
+
+    // Insertar el estudiante en la clase y sección seleccionada
+    const queryInsertStudentToClass = 'INSERT INTO clase_estudiantes (id_clase, id_seccion, id_estudiante) VALUES (?, ?, ?)';
+    db.query(queryInsertStudentToClass, [class_id, section_id, student_id], (err, result) => {
+      if (err) {
+        console.error('Error al agregar estudiante a la clase: ', err);
+        return res.status(500).send('Error al agregar estudiante');
+      }
+
+      // Si todo está bien, redirigir al dashboard del profesor
+      res.redirect('/dashboard');
+    });
+  });
+});
+
+
+// Ruta GET para mostrar el formulario de edición de sección del estudiante
+app.get('/edit-student-assignment/:student_id', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'profesor') {
+    return res.redirect('/login');
+  }
+
+  const student_id = req.params.student_id;
+
+  // Obtener las clases del profesor
+  const queryClasses = 'SELECT * FROM clases WHERE id_profesor = ?';
+  db.query(queryClasses, [req.session.user.id], (err, classes) => {
+    if (err) {
+      console.error('Error al obtener clases: ', err);
+      return res.status(500).send('Error al obtener clases');
+    }
+
+    if (classes.length === 0) {
+      return res.status(400).send('El profesor no tiene clases asignadas');
+    }
+
+    const classIds = classes.map(classItem => classItem.id);
+
+    // Corregir la consulta de secciones
+    const querySections = `SELECT * FROM secciones WHERE id_clase IN (${classIds.map(() => '?').join(',')})`;
+    db.query(querySections, classIds, (err, sections) => {
+      if (err) {
+        console.error('Error al obtener secciones: ', err);
+        return res.status(500).send('Error al obtener secciones');
+      }
+
+      // CORREGIDO: Agregar id_estudiante a la consulta
+      const queryStudent = `
+        SELECT e.id_estudiante, e.id_clase, e.id_seccion
+        FROM clase_estudiantes e
+        WHERE e.id_estudiante = ?`;
+
+      db.query(queryStudent, [student_id], (err, studentData) => {
+        if (err) {
+          console.error('Error al obtener datos del estudiante: ', err);
+          return res.status(500).send('Error al obtener datos del estudiante');
+        }
+
+        if (studentData.length === 0) {
+          return res.status(404).send('Estudiante no encontrado');
+        }
+
+        res.render('edit-student-assignment', {
+          user: req.session.user,
+          classes,
+          sections,
+          student: studentData[0]
+        });
+      });
+    });
+  });
+});
+
+
+
+// Ruta POST para actualizar la asignación de un estudiante
+app.post('/edit-student-assignment/:student_id', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'profesor') {
+    return res.redirect('/login');
+  }
+
+  const student_id = req.params.student_id;
+  const { class_id, section_id } = req.body;
+
+  if (!class_id || !section_id) {
+    return res.status(400).send('Debe seleccionar una clase y una sección.');
+  }
+
+  const queryUpdateAssignment = `
+    UPDATE clase_estudiantes
+    SET id_clase = ?, id_seccion = ?
+    WHERE id_estudiante = ?`;
+
+  db.query(queryUpdateAssignment, [class_id, section_id, student_id], (err, result) => {
+    if (err) {
+      console.error('Error al actualizar asignación del estudiante: ', err);
+      return res.status(500).send('Error al actualizar asignación');
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Estudiante no encontrado');
     }
 
     res.redirect('/dashboard');
   });
 });
+
 
 // Escuchar en el puerto 3000
 app.listen(port, () => {

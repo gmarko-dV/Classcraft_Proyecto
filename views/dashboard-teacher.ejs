@@ -5,60 +5,60 @@
   <title>Mi Classcraft - Dashboard Profesor</title>
 </head>
 <body>
-<header>
-  <nav>
-    <ul>
-      <li><a href="/dashboard">Dashboard</a></li>
-      <li><a href="/logout">Cerrar sesión</a></li>
-      <li><a href="/store">Tienda</a></li>  <!-- Enlace a la tienda -->
+  <header>
+    <nav>
+      <ul>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/logout">Cerrar sesión</a></li>
+        <li><a href="/store">Tienda</a></li>
 
-      <!-- Mostrar "Crear Clase" solo si el usuario es profesor -->
-      <% if (user.role === 'profesor') { %>
-        <li><a href="/create-class">Crear Clase</a></li>
-      <% } %>
-    </ul>
-  </nav>
-</header>
+        <% if (user.role === 'profesor') { %>
+          <li><a href="/create-class">Crear Clase</a></li>
+          <li><a href="/add-student">Agregar Estudiante</a></li>
+        <% } %>
+      </ul>
+    </nav>
+  </header>
 
   <section class="user-info">
     <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
     <p>Rol: <%= user.role %></p>
 
-    <!-- Imagen de perfil del profesor -->
     <img src="/images/professor-profile.png" alt="Imagen de perfil del profesor" width="150" style="border-radius: 50%;"> 
 
-    <!-- Mostrar la asignatura del profesor -->
-    <p>Asignatura: <%= subject %></p> <!-- Mostrar la asignatura correctamente -->
+    <p>Asignatura: <%= subject || 'Sin asignatura asignada' %></p>
+  </section>
 
-<h2>Mis Clases</h2>
+  <h2>Mis Clases</h2>
 
-<% if (showCreateClassButton) { %>
-  <p><%= message %></p>
-  <a href="/create-class">Crear una nueva clase</a> <!-- Solo muestra si no tiene clases asignadas -->
-<% } else { %>
-  <% studentsByClass.forEach(classGroup => { %>
-    <div class="class">
-      <h3>Clase: <%= classGroup.class.nombre %> - <%= classGroup.class.asignatura %></h3>
+  <% if (showCreateClassButton) { %>
+    <p><%= message %></p>
+    <a href="/create-class">Crear una nueva clase</a>
+  <% } else { %>
+    <% studentsByClass.forEach(classGroup => { %>
+      <div class="class">
+        <h3>Clase: <%= classGroup.class.nombre %> - <%= classGroup.class.asignatura %></h3>
 
-      <% classGroup.sections.forEach(classSection => { %>
-        <h4>Sección: <%= classSection.nombre %></h4>
+        <% classGroup.sections.forEach(classSection => { %>
+          <h4>Sección: <%= classSection.nombre %></h4>
 
-        <h5>Estudiantes:</h5>
-        <ul>
-          <% classGroup.students.forEach(student => { %>
-            <li><%= student.nombre %> <%= student.apellido %></li>
-          <% }) %>
-        </ul>
-      <% }) %>
-    </div>
-  <% }) %>
-<% } %>
+          <h5>Estudiantes:</h5>
+          <ul>
+            <% classGroup.students.forEach(student => { %>
+              <li>
+                <%= student.nombre %> <%= student.apellido %>
+                <!-- CORREGIDO: Usar student_id en lugar de student.id -->
+                <a href="/edit-student-assignment/<%= student.student_id %>">Editar Asignación</a>
+              </li>
+            <% }) %>
+          </ul>
+        <% }) %>
+      </div>
+    <% }) %>
+  <% } %>
 
-<footer>
-  <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
-</footer>
-
-
-
+  <footer>
+    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
+  </footer>
 </body>
 </html>

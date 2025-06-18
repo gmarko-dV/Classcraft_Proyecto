@@ -19,28 +19,31 @@
     <h1>Agregar Estudiante a Clase</h1>
     <form method="POST" action="/add-student">
       <!-- Clase -->
+      <label for="class_id">Clase:</label>
       <select name="class_id" required>
         <option value="">Selecciona una clase</option>
         <% classes.forEach(classItem => { %>
           <option value="<%= classItem.id %>"><%= classItem.nombre %> - <%= classItem.asignatura %></option>
         <% }) %>
-      </select>
+      </select><br>
 
       <!-- Sección -->
+      <label for="section_id">Sección:</label>
       <select name="section_id" required>
         <option value="">Selecciona una sección</option>
         <% sections.forEach(section => { %>
           <option value="<%= section.id %>"><%= section.nombre %></option>
         <% }) %>
-      </select>
+      </select><br>
 
       <!-- Estudiante -->
+      <label for="student_id">Estudiante:</label>
       <select name="student_id" required>
         <option value="">Selecciona un estudiante</option>
         <% students.forEach(student => { %>
           <option value="<%= student.id %>"><%= student.nombre %> <%= student.apellido %></option>
         <% }) %>
-      </select>
+      </select><br>
 
       <button type="submit">Agregar Estudiante</button>
     </form>
