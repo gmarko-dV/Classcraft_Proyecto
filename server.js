@@ -89,9 +89,21 @@ app.get('/dashboard', (req, res) => {
             return res.status(500).send('Error al obtener secciones');
           }
 
-          // Obtener los estudiantes asociados a las clases
-          const queryStudents = `SELECT clase_estudiantes.id_clase, clase_estudiantes.id_seccion, usuarios.nombre, usuarios.apellido, usuarios.id AS student_id FROM clase_estudiantes INNER JOIN usuarios ON clase_estudiantes.id_estudiante = usuarios.id WHERE clase_estudiantes.id_clase IN (${classIds.map(() => '?').join(',')})`;
-          db.query(queryStudents, classIds, (err, students) => {
+          // Obtener los estudiantes asociados a las clases y secciones
+          const queryStudents = `
+            SELECT 
+              ce.id_clase, 
+              ce.id_seccion, 
+              u.nombre, 
+              u.apellido, 
+              u.id AS student_id
+            FROM 
+              clase_estudiantes ce
+            INNER JOIN usuarios u ON ce.id_estudiante = u.id
+            WHERE 
+              ce.id_clase IN (?)`;
+
+          db.query(queryStudents, [classIds], (err, students) => {
             if (err) {
               console.error('Error al obtener estudiantes: ', err);
               return res.status(500).send('Error al obtener estudiantes');
@@ -102,10 +114,17 @@ app.get('/dashboard', (req, res) => {
               const classSections = sections.filter(section => section.id_clase === classItem.id);
               const classStudents = students.filter(student => student.id_clase === classItem.id);
 
+              // Agrupar estudiantes por sección dentro de la clase
+              const sectionsWithStudents = classSections.map(section => {
+                return {
+                  section: section,
+                  students: classStudents.filter(student => student.id_seccion === section.id)
+                };
+              });
+
               return {
                 class: classItem,
-                sections: classSections,
-                students: classStudents
+                sections: sectionsWithStudents
               };
             });
 
@@ -396,6 +415,38 @@ app.post('/edit-student-assignment/:student_id', (req, res) => {
   });
 });
 
+
+app.get('/roulette', (req, res) => {
+  const classId = req.session.user.class_id;  // Obtener el ID de la clase desde la sesión
+
+  // Consulta para obtener todos los estudiantes de las secciones 1 y 2
+  const query = `
+    SELECT usuarios.id, usuarios.nombre, usuarios.apellido
+    FROM usuarios
+    JOIN clase_estudiantes ON usuarios.id = clase_estudiantes.id_estudiante
+    WHERE usuarios.rol = 'alumno' 
+      AND clase_estudiantes.id_seccion IN (1, 2);
+  `;
+  
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error('Error al obtener estudiantes:', err);
+      return res.status(500).send('Error al obtener estudiantes');
+    }
+
+    // Verificar si no hay estudiantes en las secciones
+    if (result.length === 0) {
+      return res.render('roulette', { students: [], selectedStudent: null, message: 'No hay estudiantes en estas secciones.' });
+    }
+
+    // Seleccionar un estudiante aleatorio para mostrar inicialmente
+    const randomIndex = Math.floor(Math.random() * result.length);
+    const selectedStudent = result[randomIndex];
+
+    // Pasar los estudiantes y el estudiante seleccionado a la vista de la ruleta
+    res.render('roulette', { students: result, selectedStudent: selectedStudent, message: '' });
+  });
+});
 
 // Escuchar en el puerto 3000
 app.listen(port, () => {

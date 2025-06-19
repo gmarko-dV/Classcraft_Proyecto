@@ -15,6 +15,7 @@
         <% if (user.role === 'profesor') { %>
           <li><a href="/create-class">Crear Clase</a></li>
           <li><a href="/add-student">Agregar Estudiante</a></li>
+          <li><a href="/roulette">Jugar Ruleta</a></li>
         <% } %>
       </ul>
     </nav>
@@ -40,14 +41,13 @@
         <h3>Clase: <%= classGroup.class.nombre %> - <%= classGroup.class.asignatura %></h3>
 
         <% classGroup.sections.forEach(classSection => { %>
-          <h4>Sección: <%= classSection.nombre %></h4>
+          <h4>Sección: <%= classSection.section.nombre %></h4>
 
           <h5>Estudiantes:</h5>
           <ul>
-            <% classGroup.students.forEach(student => { %>
+            <% classSection.students.forEach(student => { %>
               <li>
                 <%= student.nombre %> <%= student.apellido %>
-                <!-- CORREGIDO: Usar student_id en lugar de student.id -->
                 <a href="/edit-student-assignment/<%= student.student_id %>">Editar Asignación</a>
               </li>
             <% }) %>
