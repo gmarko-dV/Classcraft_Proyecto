@@ -417,16 +417,12 @@ app.post('/edit-student-assignment/:student_id', (req, res) => {
 
 
 app.get('/roulette', (req, res) => {
-  const classId = req.session.user.class_id;  // Obtener el ID de la clase desde la sesión
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
 
-  // Consulta para obtener todos los estudiantes de las secciones 1 y 2
-  const query = `
-    SELECT usuarios.id, usuarios.nombre, usuarios.apellido
-    FROM usuarios
-    JOIN clase_estudiantes ON usuarios.id = clase_estudiantes.id_estudiante
-    WHERE usuarios.rol = 'alumno' 
-      AND clase_estudiantes.id_seccion IN (1, 2);
-  `;
+  // Obtener estudiantes con rol 'alumno'
+  const query = 'SELECT id_usuario, nombre, apellido FROM estudiantes INNER JOIN usuarios ON estudiantes.id_usuario = usuarios.id WHERE usuarios.rol = "alumno"';
   
   db.query(query, (err, result) => {
     if (err) {
@@ -434,19 +430,21 @@ app.get('/roulette', (req, res) => {
       return res.status(500).send('Error al obtener estudiantes');
     }
 
-    // Verificar si no hay estudiantes en las secciones
-    if (result.length === 0) {
-      return res.render('roulette', { students: [], selectedStudent: null, message: 'No hay estudiantes en estas secciones.' });
-    }
+    // Pasamos los estudiantes y premios/castigos a la vista
+    const prizesAndPunishments = [
+      { fillStyle: '#eae56f', text: 'Gana 10 XP' },
+      { fillStyle: '#89f26e', text: 'Pierde 5 HP' },
+      { fillStyle: '#7de6eb', text: 'Responde pregunta +5 HP' },
+      { fillStyle: '#f9d056', text: 'Equipo gana 10 XP' }
+    ];
 
-    // Seleccionar un estudiante aleatorio para mostrar inicialmente
-    const randomIndex = Math.floor(Math.random() * result.length);
-    const selectedStudent = result[randomIndex];
-
-    // Pasar los estudiantes y el estudiante seleccionado a la vista de la ruleta
-    res.render('roulette', { students: result, selectedStudent: selectedStudent, message: '' });
+    res.render('ruleta', { 
+      students: result, 
+      prizesAndPunishments: prizesAndPunishments 
+    });
   });
 });
+
 
 // Escuchar en el puerto 3000
 app.listen(port, () => {

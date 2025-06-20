@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruleta de Premios y Castigos</title>
+  <script src="https://cdn.jsdelivr.net/npm/winwheel.js@2.7.1/dist/Winwheel.min.js"></script>
+  <style>
+    /* Tus estilos aquí */
+  </style>
+</head>
+<body>
+
+  <h1>🎯 Ruleta de Premios y Castigos</h1>
+
+  <div class="roulette-container">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="center-pin"></div>
+  </div>
+
+  <div class="button-container">
+    <button class="spin-button" id="spinButton">🎲 Girar Ruleta</button>
+  </div>
+
+  <div class="result-display" id="resultDisplay">
+    <h3>🎉 Resultado:</h3>
+    <p id="resultText"></p>
+  </div>
+
+  <!-- Lista de estudiantes seleccionados -->
+  <div class="student-list">
+    <h3>Estudiantes Seleccionados:</h3>
+    <ul id="studentList">
+      <!-- Aquí se mostrarán los estudiantes seleccionados -->
+    </ul>
+  </div>
+
+  <!-- Formulario para aumentar/disminuir oro, HP y XP -->
+  <div class="reward-form">
+    <h3>Recompensas y Castigos</h3>
+    <label for="student">Estudiante:</label>
+    <select id="studentSelect">
+      <% students.forEach(student => { %>
+        <option value="<%= student.id_usuario %>"><%= student.nombre %> <%= student.apellido %></option>
+      <% }); %>
+    </select>
+    
+    <label for="action">Acción:</label>
+    <select id="actionSelect">
+      <option value="xp">Ganar XP</option>
+      <option value="hp">Ganar HP</option>
+      <option value="oro">Dar oro</option>
+    </select>
+
+    <input type="number" id="amountInput" placeholder="Cantidad" min="1" value="10" />
+
+    <button onclick="applyReward()">Aplicar</button>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    // Convertimos la cadena de premios/castigos en un array
+    const prizesAndPunishments = JSON.parse("<%= prizesAndPunishments %>");
+
+    // Crear la ruleta con Winwheel.js
+    const theWheel = new Winwheel({
+      canvasId: 'wheel',  // Especificar el ID del canvas
+      numSegments: prizesAndPunishments.length,
+      outerRadius: 200,
+      innerRadius: 50,
+      textFontSize: 12,
+      textAlignment: 'center',
+      segments: prizesAndPunishments,
+      animation: {
+        type: 'spinToStop',
+        duration: 5,
+        spins: 8,
+        callbackFinished: showSelectedStudents
+      }
+    });
+
+    // Función para girar la ruleta
+    document.getElementById('spinButton').addEventListener('click', function() {
+      theWheel.startAnimation();
+    });
+
+    // Mostrar los estudiantes seleccionados
+    function showSelectedStudents() {
+      const selectedSegment = theWheel.getIndicatedSegment();
+      const selectedAction = selectedSegment.text;
+
+      // Mostrar la acción seleccionada
+      alert('¡Acción seleccionada: ' + selectedAction + '!');
+
+      // Mostrar la lista de estudiantes debajo de la ruleta
+      const studentList = document.getElementById('studentList');
+      studentList.innerHTML = ''; // Limpiar lista
+
+      // Agregar los estudiantes a la lista
+      "<% students.forEach(student => { %>"
+        const studentItem = document.createElement('li');
+        studentItem.textContent = '<%= student.nombre %> <%= student.apellido %>';
+        studentList.appendChild(studentItem);
+      "<% }); %>"
+    }
+
+    // Función para aplicar recompensa o castigo
+    function applyReward() {
+      const studentId = document.getElementById('studentSelect').value;
+      const action = document.getElementById('actionSelect').value;
+      const amount = document.getElementById('amountInput').value;
+      const studentName = document.getElementById('studentSelect').options[document.getElementById('studentSelect').selectedIndex].text;
+
+      if (!amount || amount <= 0) {
+        alert('Por favor, ingresa una cantidad válida');
+        return;
+      }
+
+      // Simular aplicación de recompensa
+      alert(`✅ Aplicando ${action.toUpperCase()} de ${amount} puntos a ${studentName}`);
+      
+      // Limpiar formulario
+      document.getElementById('amountInput').value = '10';
+    }
+
+    // Cargar estudiantes al inicio
+    document.addEventListener('DOMContentLoaded', function() {
+      showSelectedStudents();
+    });
+  </script>
+
+</body>
+</html>
