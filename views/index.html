@@ -2,34 +2,388 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Classcraft</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    /* Barra de navegación */
+    header {
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      padding: 1rem 2rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #28a745;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .logo img {
+      height: 40px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #28a745;
+    }
+
+    .login-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+
+    /* Estilos para la sección de bienvenida */
+    .hero-section {
+      position: relative;
+      text-align: center;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Imagen de fondo */
+    .hero-section img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -2;
+    }
+
+    /* Capa oscura sobre la imagen de fondo */
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    /* Contenido centrado */
+    .content {
+      color: white;
+      text-align: center;
+      max-width: 800px;
+      padding: 0 2rem;
+    }
+
+    .content h1 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    .content h2 {
+      font-size: 4rem;
+      margin-bottom: 2rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      line-height: 1.2;
+    }
+
+    .content p {
+      font-size: 1.2rem;
+      margin-bottom: 3rem;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      opacity: 0.9;
+    }
+
+    .buttons a {
+      background-color: transparent;
+      color: white;
+      padding: 15px 30px;
+      border: 2px solid white;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .buttons a:hover {
+      background-color: white;
+      color: #333;
+      transform: translateY(-2px);
+    }
+
+    /* Sección de Classcraft */
+    .classcraft-info {
+      background-color: #f8f9fa;
+      padding: 4rem 0;
+      min-height: 60vh;
+    }
+
+    .classcraft-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      gap: 3rem;
+      align-items: start;
+      padding: 0 2rem;
+    }
+
+    .classcraft-title {
+    background-color: #ffc107;
+    height: auto; /* Ajusta la altura para que se ajuste al contenido */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px; /* Añadir padding para dar más espacio */
+    }
+
+    .classcraft-title h2 {
+      color: white;
+      font-size: 6rem;
+      font-weight: bold;
+      writing-mode: sideways-lr;
+      text-orientation: mixed;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.1em;
+      text-align: center; /* Asegúrate de que el texto se centre */
+    }
+
+    /* Columna central con información principal */
+    .classcraft-main {
+      color: #495057;
+    }
+
+    .classcraft-main h3 {
+      color: #343a40;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .classcraft-main h4 {
+      color: #495057;
+      font-size: 1.3rem;
+      margin-top: 2rem;
+      margin-bottom: 0.8rem;
+      font-weight: 600;
+    }
+
+    .classcraft-main p {
+      color: #6c757d;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    /* Columna derecha con características */
+    .classcraft-features {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .classcraft-features h4 {
+      color: #343a40;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .classcraft-features ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .classcraft-features li {
+      color: #495057;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .classcraft-features li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #28a745;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .classcraft-features strong {
+      color: #343a40;
+      font-weight: 600;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .classcraft-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 0 1rem;
+      }
+
+      .classcraft-title {
+        height: 100px;
+      }
+
+      .classcraft-title h2 {
+        writing-mode: horizontal-tb;
+        text-orientation: mixed;
+        font-size: 2rem;
+      }
+
+      .content h2 {
+        font-size: 2.5rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    /* Footer */
+    footer {
+      background-color: rgba(0, 0, 0, 0.8);
+      text-align: center;
+      padding: 2rem;
+      color: white;
+    }
+
+    footer p {
+      opacity: 0.8;
+    }
+  </style>
 </head>
 <body>
+
+  <!-- Barra de navegación -->
   <header>
     <nav>
-      <ul>
+      <div class="logo">
+        <img src="/images/logo.png" alt="Logo"> <!-- Ruta corregida -->
+      </div>
+      <ul class="nav-links">
         <li><a href="/">Inicio</a></li>
         <li><a href="/info">Info</a></li>
         <li><a href="/features">Features</a></li>
         <li><a href="/desarrolladores">Desarrolladores</a></li>
         <li><a href="/contacto">Contáctanos</a></li>
+        <li><a href="/login" class="login-btn">Iniciar Sesión</a></li>
       </ul>
     </nav>
   </header>
 
-  <section class="welcome">
-    <h1>¡Aprender nunca fue tan divertido!</h1>
-    <h2>Bienvenido a Mi Classcraft</h2>
-    <p>¡Explora un mundo de aprendizaje interactivo para estudiantes y profesores!</p>
-
-    <div>
-      <button onclick="window.location.href='/register'">Registrarse</button>
-      <button onclick="window.location.href='/login'">Iniciar Sesión</button>
+  <!-- Imagen de fondo y contenido -->
+  <section class="hero-section">
+    <img src="/images/fondo.jpg" alt="Imagen de fondo"> <!-- Ruta corregida -->
+    <div class="content">
+      <h1>¡Aprender nunca fue tan divertido!</h1>
+      <h2>Bienvenido a Mi Classcraft</h2>
+      <div class="buttons">
+        <a href="/register">Registrarse</a>
+      </div>
     </div>
   </section>
 
+  <!-- Sección de información sobre Classcraft -->
+  <section class="classcraft-info">
+    <div class="classcraft-container">
+      <!-- Columna izquierda con fondo amarillo -->
+      <div class="classcraft-title">
+        <h2>Classcraft</h2>
+      </div>
+      
+      <!-- Columna central con información principal -->
+      <div class="classcraft-main">
+        <h3>¿Qué es Classcraft?</h3>
+        <p>
+          Classcraft es una innovadora plataforma educativa que transforma la experiencia de aprendizaje tradicional en una aventura épica basada en dinámicas de juego.
+        </p>
+        
+        <h4>¿Cómo funciona?</h4>
+        <p>
+          Classcraft combina elementos de los videojuegos de rol (RPG) con estrategias educativas. Los estudiantes crean sus propios avatares, forman equipos y ganan puntos por su desempeño académico, comportamiento positivo, colaboración y superación de desafíos.
+        </p>
+        
+        <p>
+          Los maestros pueden configurar misiones personalizadas, establecer reglas claras, y otorgar poderes o penalizaciones que afectan el avance del juego, lo que incentiva a los alumnos a involucrarse activamente en su proceso de aprendizaje.
+        </p>
+      </div>
+      
+      <!-- Columna derecha con características -->
+      <div class="classcraft-features">
+        <h4>Principales características</h4>
+        <ul>
+          <li><strong>Gamificación del aula:</strong> Convierte las actividades diarias en oportunidades para ganar experiencia (XP), puntos de salud (HP) y poderes especiales.</li>
+          <li><strong>Desarrollo de habilidades sociales:</strong> Fomenta el trabajo en equipo, la empatía, la responsabilidad y la resolución de problemas.</li>
+          <li><strong>Personalización:</strong> Cada docente puede adaptar las misiones y recompensas a las necesidades y objetivos de su grupo de alumnos.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
   <footer>
     <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
   </footer>
+
 </body>
 </html>

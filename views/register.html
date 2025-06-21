@@ -2,41 +2,124 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registrar - Mi Classcraft</title>
+  <!-- Agregar enlace de Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    /* Fondo de la página con imagen */
+    body {
+      background-image: url('/images/registro.jpg'); /* Ruta a la imagen de fondo */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* Contenedor del formulario */
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con algo de transparencia */
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      top: 100px; /* Se aleja un poco del borde superior */
+    }
+
+    /* Logo dentro del formulario */
+    .logo {
+      text-align: center;
+      margin-bottom: 20px; /* Espacio debajo del logo */
+    }
+
+    .logo img {
+      width: 300px; /* Tamaño del logo */
+      max-width: 100%;
+    }
+
+    /* Sección de estilo adicional si es necesario */
+    .form-container .form-control,
+    .form-container .form-select {
+      margin-bottom: 15px;
+    }
+
+    /* Sección para asegurar el formato */
+    .form-container h1 {
+      display: none; /* Ocultar el título si ya no lo necesitamos */
+    }
+
+  </style>
 </head>
 <body>
-  <h1>Formulario de Registro</h1>
-  <form action="/register" method="POST">
-    <label for="first_name">Nombre:</label>
-    <input type="text" name="first_name" required><br>
+  <!-- Formulario -->
+  <div class="container my-5">
+    <div class="form-container">
+      <!-- Logo dentro del formulario -->
+      <div class="logo">
+        <img src="/images/logo.png" alt="Logo"> <!-- Ruta al logo -->
+      </div>
 
-    <label for="last_name">Apellido:</label>
-    <input type="text" name="last_name" required><br>
+      <h1>Formulario de Registro</h1>
+      <form action="/register" method="POST">
+        <div class="mb-3">
+          <label for="first_name" class="form-label">Nombre:</label>
+          <input type="text" class="form-control" name="first_name" required>
+        </div>
 
-    <label for="email">Correo electrónico:</label>
-    <input type="email" name="email" required><br>
+        <div class="mb-3">
+          <label for="last_name" class="form-label">Apellido:</label>
+          <input type="text" class="form-control" name="last_name" required>
+        </div>
 
-    <label for="password">Contraseña:</label>
-    <input type="password" name="password" id="password" required><br>
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo electrónico:</label>
+          <input type="email" class="form-control" name="email" required>
+        </div>
 
-    <label for="confirm_password">Confirmar Contraseña:</label>
-    <input type="password" name="confirm_password" id="confirm_password" required><br>
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña:</label>
+          <input type="password" class="form-control" name="password" id="password" required>
+        </div>
 
-    <label for="role">Rol:</label>
-    <select name="role" id="role" required onchange="toggleSubjectField()">
-      <option value="alumno">Alumno</option>
-      <option value="profesor">Profesor</option>
-    </select><br>
+        <div class="mb-3">
+          <label for="confirm_password" class="form-label">Confirmar Contraseña:</label>
+          <input type="password" class="form-control" name="confirm_password" id="confirm_password" required>
+        </div>
 
-    <!-- Campo para que el profesor ingrese el nombre de la asignatura -->
-    <div id="subject_field" style="display: none;">
-      <label for="subject">Asignatura:</label>
-      <input type="text" name="subject"><br>
+        <div class="mb-3">
+          <label for="role" class="form-label">Rol:</label>
+          <select name="role" id="role" class="form-select" required onchange="toggleSubjectField()">
+            <option value="alumno">Alumno</option>
+            <option value="profesor">Profesor</option>
+          </select>
+        </div>
+
+        <!-- Campo para que el profesor ingrese el nombre de la asignatura -->
+        <div id="subject_field" style="display: none;">
+          <div class="mb-3">
+            <label for="subject" class="form-label">Asignatura:</label>
+            <input type="text" class="form-control" name="subject">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success d-grid mx-auto">Registrar</button>
+      </form>
     </div>
+  </div>
 
-    <button type="submit">Registrar</button>
-  </form>
-
+  <!-- Agregar enlace de Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Función para habilitar o deshabilitar el campo de asignatura
     function toggleSubjectField() {
