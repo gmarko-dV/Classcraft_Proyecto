@@ -65,20 +65,17 @@ app.get('/dashboard', (req, res) => {
           return res.status(500).send('Error al obtener asignatura');
         }
 
-        // Si existe una asignatura, la pasamos a la vista
         const subject = result.length > 0 ? result[0].asignatura : 'Sin asignatura asignada';
 
         // Si el profesor tiene clases, obtenemos las secciones y estudiantes
         const classIds = classes.map(classItem => classItem.id);  // Obtener todos los IDs de las clases del profesor
 
-        // Verificamos si hay clases para el profesor antes de ejecutar la consulta
         if (classIds.length === 0) {
-          // Si no hay clases, redirigir o mostrar mensaje adecuado
           return res.render('dashboard-teacher', {
             user: req.session.user,
             showCreateClassButton,
             message: 'No tienes clases asignadas. Puedes crear una nueva clase.',
-            subject // Pasar la asignatura al dashboard
+            subject
           });
         }
 
@@ -114,7 +111,6 @@ app.get('/dashboard', (req, res) => {
               const classSections = sections.filter(section => section.id_clase === classItem.id);
               const classStudents = students.filter(student => student.id_clase === classItem.id);
 
-              // Agrupar estudiantes por sección dentro de la clase
               const sectionsWithStudents = classSections.map(section => {
                 return {
                   section: section,
@@ -128,29 +124,31 @@ app.get('/dashboard', (req, res) => {
               };
             });
 
-            // Renderizar el dashboard del profesor con las clases, secciones, estudiantes y el botón de crear clase
             res.render('dashboard-teacher', { 
               user: req.session.user, 
-              studentsByClass, // Pasar la variable studentsByClass
-              showCreateClassButton, // Pasar la variable para mostrar el botón si no hay clases
-              subject // Pasar la asignatura al dashboard
+              studentsByClass, 
+              showCreateClassButton, 
+              subject 
             });
           });
         });
       });
     });
   } else if (req.session.user.role === 'alumno') {
-    // Obtener información del estudiante (incluyendo clase y sección)
+    // Obtener información del estudiante (incluyendo clase, sección y artículos comprados)
     const queryStudent = `
       SELECT 
         u.nombre, u.apellido, u.id AS student_id, 
         e.oro, e.personaje, e.hp, e.xp, 
-        c.nombre AS clase, s.nombre AS seccion
+        c.nombre AS clase, s.nombre AS seccion,
+        a.nombre AS articulo_comprado
       FROM estudiantes e
       INNER JOIN usuarios u ON e.id_usuario = u.id
       LEFT JOIN clase_estudiantes ce ON e.id_usuario = ce.id_estudiante
       LEFT JOIN clases c ON ce.id_clase = c.id
       LEFT JOIN secciones s ON ce.id_seccion = s.id
+      LEFT JOIN compras comp ON comp.id_estudiante = u.id
+      LEFT JOIN articulos_tienda a ON comp.id_articulo = a.id
       WHERE u.id = ?`;
 
     db.query(queryStudent, [req.session.user.id], (err, studentData) => {
@@ -163,7 +161,7 @@ app.get('/dashboard', (req, res) => {
       res.render('dashboard-student', { user: req.session.user, student });
     });
   } else {
-    res.status(403).send('Acceso no autorizado');
+    res.status(403).send('Acco no autorizado');
   }
 });
 
@@ -493,6 +491,78 @@ app.post('/applyReward', (req, res) => {
         res.json({ success: true, message: 'Acción aplicada correctamente' });
     });
 });
+
+
+// Ruta para mostrar los artículos en la tienda
+app.get('/store', (req, res) => {
+  const queryItems = 'SELECT * FROM articulos_tienda';  // Obtener todos los artículos de la tienda
+
+  db.query(queryItems, (err, items) => {
+    if (err) {
+      console.error('Error al obtener los artículos: ', err);
+      return res.status(500).send('Error al obtener los artículos');
+    }
+
+    // Renderizar la tienda pasando los artículos a la vista
+    res.render('store', { user: req.session.user, articulos: items });
+  });
+});
+
+
+// Ruta para realizar una compra
+app.post('/comprar', (req, res) => {
+  const { id_estudiante, id_articulo } = req.body;  // ID del estudiante y el artículo
+
+  // Obtener el precio del artículo
+  const queryArticulo = 'SELECT precio FROM articulos_tienda WHERE id = ?';
+  db.query(queryArticulo, [id_articulo], (err, result) => {
+    if (err) {
+      console.error('Error al obtener el precio del artículo:', err);
+      return res.status(500).send('Error al obtener el precio del artículo');
+    }
+
+    const precio = result[0].precio;
+
+    // Obtener el oro del estudiante
+    const queryOro = 'SELECT oro FROM estudiantes WHERE id_usuario = ?';
+    db.query(queryOro, [id_estudiante], (err, result) => {
+      if (err) {
+        console.error('Error al obtener el oro del estudiante:', err);
+        return res.status(500).send('Error al obtener el oro del estudiante');
+      }
+
+      const oroDisponible = result[0].oro;
+
+      // Verificar si el estudiante tiene suficiente oro
+      if (oroDisponible < precio) {
+        return res.status(400).send('No tienes suficiente oro para realizar esta compra');
+      }
+
+      // Restar el oro al estudiante
+      const nuevoOro = oroDisponible - precio;
+      const queryActualizarOro = 'UPDATE estudiantes SET oro = ? WHERE id_usuario = ?';
+      db.query(queryActualizarOro, [nuevoOro, id_estudiante], (err, result) => {
+        if (err) {
+          console.error('Error al actualizar el oro del estudiante:', err);
+          return res.status(500).send('Error al actualizar el oro');
+        }
+
+        // Registrar la compra en la tabla 'compras'
+        const queryCompra = 'INSERT INTO compras (id_estudiante, id_articulo) VALUES (?, ?)';
+        db.query(queryCompra, [id_estudiante, id_articulo], (err, result) => {
+          if (err) {
+            console.error('Error al registrar la compra:', err);
+            return res.status(500).send('Error al registrar la compra');
+          }
+
+          // Responder con éxito
+          res.json({ success: true, message: 'Compra realizada con éxito' });
+        });
+      });
+    });
+  });
+});
+
 
 // Escuchar en el puerto 3000
 app.listen(port, () => {

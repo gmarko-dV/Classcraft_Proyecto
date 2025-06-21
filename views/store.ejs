@@ -2,26 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tienda</title>
+  <title>Mi Classcraft - Tienda</title>
 </head>
 <body>
-  <h1>Bienvenido a la tienda, <%= user.first_name %>!</h1>
-  <p>Oro disponible: <%= user.gold %></p>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/logout">Cerrar sesión</a></li>
+      </ul>
+    </nav>
+  </header>
 
-  <h2>Artículos disponibles:</h2>
-
-  <form action="/purchase" method="POST">
-    <ul>
-      <% storeItems.forEach(item => { %>
-        <li>
-          <h3><%= item.name %></h3>
-          <p><%= item.description %></p>
-          <p>Precio: <%= item.price %> oro</p>
-          <button type="submit" name="item_id" value="<%= item.id %>">Comprar</button>
-        </li>
+  <section class="store">
+    <h1>Bienvenido a la Tienda</h1>
+    
+    <div class="items">
+      <% articulos.forEach(item => { %>
+        <div class="item">
+          <img src="/images/<%= item.url_imagen %>" alt="<%= item.nombre %>" width="150">
+          <p><%= item.nombre %></p>
+          <p>Precio: <%= item.precio %> de oro</p>
+          <form action="/comprar" method="POST">
+            <input type="hidden" name="id_estudiante" value="<%= user.id %>">
+            <input type="hidden" name="id_articulo" value="<%= item.id %>">
+            <button type="submit">Comprar</button>
+          </form>
+        </div>
       <% }); %>
-    </ul>
-  </form>
-
+    </div>
+  </section>
 </body>
 </html>

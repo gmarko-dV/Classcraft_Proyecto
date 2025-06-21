@@ -10,7 +10,7 @@
       <ul>
         <li><a href="/dashboard">Dashboard</a></li>
         <li><a href="/logout">Cerrar sesión</a></li>
-        <li><a href="/store">Tienda</a></li>  <!-- Enlace a la tienda -->
+        <li><a href="/store">Tienda</a></li>
       </ul>
     </nav>
   </header>
@@ -18,23 +18,27 @@
   <section class="user-info">
     <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
     <p>Rol: <%= user.role %></p>
-    <p>Oro disponible: <%= student.oro %></p> <!-- Ahora 'student.oro' -->
-    <p>Personaje: <%= student.personaje || 'Sin personaje asignado' %></p> <!-- Mostrar el personaje -->
+    <p>Oro disponible: <%= student.oro %></p>
+    <p>Personaje: <%= student.personaje || 'Sin personaje asignado' %></p>
     <% if (student.personaje) { %>
       <img src="/images/<%= student.personaje.toLowerCase() %>.png" alt="<%= student.personaje %>" width="150">
     <% } else { %>
       <p>Aún no has seleccionado un personaje.</p>
     <% } %>
-    
-    <!-- Mostrar HP -->
-    <p><strong>HP:</strong> <%= student.hp %> / 100</p>
-    
-    <!-- Mostrar XP -->
-    <p><strong>XP:</strong> <%= student.xp %> / 100</p>
 
-    <!-- Mostrar Clase y Sección -->
+    <p><strong>HP:</strong> <%= student.hp %> / 100</p>
+    <p><strong>XP:</strong> <%= student.xp %> / 100</p>
     <p><strong>Clase:</strong> <%= student.clase || 'Sin clase asignada' %></p>
     <p><strong>Sección:</strong> <%= student.seccion || 'Sin sección asignada' %></p>
+
+    <h2>Artículos Comprados:</h2>
+    <% if (student.articulo_comprado) { %>
+      <ul>
+        <li><%= student.articulo_comprado %></li>
+      </ul>
+    <% } else { %>
+      <p>Aún no has comprado artículos.</p>
+    <% } %>
   </section>
 
   <footer>
