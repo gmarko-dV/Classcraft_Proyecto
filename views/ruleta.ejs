@@ -1,137 +1,389 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ruleta de Premios y Castigos</title>
-  <script src="https://cdn.jsdelivr.net/npm/winwheel.js@2.7.1/dist/Winwheel.min.js"></script>
-  <style>
-    /* Tus estilos aquí */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta del Juego</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .roulette-container {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .roulette {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Colores de los segmentos */
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: right bottom;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .segment:nth-child(1) {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52); /* Gana XP */
+            transform: rotate(0deg);
+        }
+
+        .segment:nth-child(2) {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d); /* Pierde HP */
+            transform: rotate(72deg);
+        }
+
+        .segment:nth-child(3) {
+            background: linear-gradient(45deg, #45b7d1, #96c93d); /* Gana Gold */
+            transform: rotate(144deg);
+        }
+
+        .segment:nth-child(4) {
+            background: linear-gradient(45deg, #f39c12, #e74c3c); /* Pierde XP */
+            transform: rotate(216deg);
+        }
+
+        .segment:nth-child(5) {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad); /* Equipo gana Gold */
+            transform: rotate(288deg);
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #333;
+            z-index: 10;
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #333, #555);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .spin-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reward-form {
+            margin-top: 30px;
+        }
+
+        .reward-form label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        .reward-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .reward-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .reward-form button {
+            padding: 10px 20px;
+            background-color: #764ba2;
+            color: white;
+            border: none;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .reward-form button:hover {
+            background-color: #667eea;
+        }
+
+        .rewards-list {
+            margin-left: 50px;
+            font-size: 1.2em;
+            text-align: left;
+            list-style: none;
+            padding: 0;
+        }
+
+        .rewards-list li {
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>🎯 Ruleta de Premios y Castigos</h1>
+    <div class="container">
+        <h1>🎰 Ruleta del Destino</h1>
+        
+        <div class="roulette-container">
+            <div class="pointer"></div>
+            <div class="roulette" id="roulette">
+                <!-- Los segmentos ahora son visibles con colores y texto oculto -->
+                <div class="segment" style="transform: rotate(0deg);"></div>
+                <div class="segment" style="transform: rotate(72deg);"></div>
+                <div class="segment" style="transform: rotate(144deg);"></div>
+                <div class="segment" style="transform: rotate(216deg);"></div>
+                <div class="segment" style="transform: rotate(288deg);"></div>
+            </div>
+            <div class="center-circle"></div>
+        </div>
+        
+        <button class="spin-button" id="spinButton">¡GIRAR RULETA!</button>
+        
+        <div class="result" id="result">
+            ¡Haz clic en "GIRAR RULETA" para probar tu suerte!
+        </div>
 
-  <div class="roulette-container">
-    <div class="pointer"></div>
-    <div class="wheel" id="wheel"></div>
-    <div class="center-pin"></div>
-  </div>
+        <ul class="rewards-list">
+            <li>🎉 Gana 40 XP</li>
+            <li>🎉 Pierde 30 HP</li>
+            <li>🎉 Gana +100 Gold</li>
+            <li>🎉 Pierde 50 XP</li>
+            <li>🎉 Equipo gana 50 Gold</li>
+        </ul>
 
-  <div class="button-container">
-    <button class="spin-button" id="spinButton">🎲 Girar Ruleta</button>
-  </div>
+        <!-- Formulario para aumentar/disminuir oro, HP y XP -->
+        <div class="reward-form">
+            <h3>Recompensas y Castigos</h3>
+            <label for="student">Estudiante:</label>
+            <select id="studentSelect">
+                <% gameData.students.forEach(student => { %>
+                    <option value="<%= student.id_usuario %>"><%= student.nombre %> <%= student.apellido %></option>
+                <% }); %>
+            </select>
 
-  <div class="result-display" id="resultDisplay">
-    <h3>🎉 Resultado:</h3>
-    <p id="resultText"></p>
-  </div>
+            <label for="action">Acción:</label>
+            <select id="actionSelect">
+                <option value="oro_add">Gana Gold</option>
+                <option value="xp_add">Gana XP</option>
+                <option value="hp_sub">Pierde HP</option>
+                <option value="xp_sub">Pierde XP</option>
+            </select>
 
-  <!-- Lista de estudiantes seleccionados -->
-  <div class="student-list">
-    <h3>Estudiantes Seleccionados:</h3>
-    <ul id="studentList">
-      <!-- Aquí se mostrarán los estudiantes seleccionados -->
-    </ul>
-  </div>
+            <label for="value">Valor:</label>
+            <input type="number" id="valueInput" min="10" max="100" step="10" required placeholder="Ingrese el valor">
 
-  <!-- Formulario para aumentar/disminuir oro, HP y XP -->
-  <div class="reward-form">
-    <h3>Recompensas y Castigos</h3>
-    <label for="student">Estudiante:</label>
-    <select id="studentSelect">
-      <% students.forEach(student => { %>
-        <option value="<%= student.id_usuario %>"><%= student.nombre %> <%= student.apellido %></option>
-      <% }); %>
-    </select>
-    
-    <label for="action">Acción:</label>
-    <select id="actionSelect">
-      <option value="xp">Ganar XP</option>
-      <option value="hp">Ganar HP</option>
-      <option value="oro">Dar oro</option>
-    </select>
+            <button type="submit" id="submitAction">Aplicar</button>
+        </div>
+    </div>
 
-    <input type="number" id="amountInput" placeholder="Cantidad" min="1" value="10" />
+    <script>
+        const roulette = document.getElementById('roulette');
+        const spinButton = document.getElementById('spinButton');
+        const result = document.getElementById('result');
+        
+        const options = [
+            'Gana 40 XP',
+            'Pierde 30 HP',
+            'Gana +100 Gold',
+            'Pierde 50 XP',
+            'Equipo gana 50 Gold'
+        ];
+        
+        let isSpinning = false;
+        
+        spinButton.addEventListener('click', spin);
+        
+        function spin() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            spinButton.disabled = true;
+            spinButton.classList.add('spinning');
+            spinButton.textContent = 'GIRANDO...';
+            
+            // Ocultar resultado anterior
+            result.classList.remove('show');
+            
+            // Calcular rotación aleatoria
+            const randomSpin = Math.random() * 360 + 1440; // Al menos 4 vueltas completas
+            const finalRotation = randomSpin % 360;
+            
+            // Aplicar rotación
+            roulette.style.transform = `rotate(${randomSpin}deg)`;
+            
+            // Calcular resultado basado en la rotación final
+            setTimeout(() => {
+                const segmentAngle = 360 / options.length;
+                const adjustedRotation = (360 - finalRotation + segmentAngle / 2) % 360;
+                const winningIndex = Math.floor(adjustedRotation / segmentAngle);
+                const winningOption = options[winningIndex];
 
-    <button onclick="applyReward()">Aplicar</button>
-  </div>
+                // Mostrar el resultado correcto en la parte inferior
+                result.textContent = `🎉 ${winningOption} 🎉`;
+                result.classList.add('show');
+                
+                // Enviar resultado al servidor
+                fetch('/roulette/result', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ result: winningOption })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resultado enviado:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+                
+                // Resetear botón
+                isSpinning = false;
+                spinButton.disabled = false;
+                spinButton.classList.remove('spinning');
+                spinButton.textContent = '¡GIRAR OTRA VEZ!';
 
-  <footer>
-    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
-  </footer>
+            }, 3000);
+        }
 
-  <script>
-    // Convertimos la cadena de premios/castigos en un array
-    const prizesAndPunishments = JSON.parse("<%= prizesAndPunishments %>");
+        // Lógica para aplicar recompensas o castigos
+        document.getElementById('submitAction').addEventListener('click', function(e) {
+            e.preventDefault();  // Prevenir que se recargue la página al enviar el formulario
 
-    // Crear la ruleta con Winwheel.js
-    const theWheel = new Winwheel({
-      canvasId: 'wheel',  // Especificar el ID del canvas
-      numSegments: prizesAndPunishments.length,
-      outerRadius: 200,
-      innerRadius: 50,
-      textFontSize: 12,
-      textAlignment: 'center',
-      segments: prizesAndPunishments,
-      animation: {
-        type: 'spinToStop',
-        duration: 5,
-        spins: 8,
-        callbackFinished: showSelectedStudents
-      }
-    });
+            // Obtener los valores del formulario
+            const studentId = document.getElementById('studentSelect').value;
+            const action = document.getElementById('actionSelect').value;
+            const value = document.getElementById('valueInput').value;
 
-    // Función para girar la ruleta
-    document.getElementById('spinButton').addEventListener('click', function() {
-      theWheel.startAnimation();
-    });
+            // Verificar si el valor es válido
+            if (value <= 0 || !value) {
+                alert("Por favor, ingresa un valor válido.");
+                return;
+            }
 
-    // Mostrar los estudiantes seleccionados
-    function showSelectedStudents() {
-      const selectedSegment = theWheel.getIndicatedSegment();
-      const selectedAction = selectedSegment.text;
-
-      // Mostrar la acción seleccionada
-      alert('¡Acción seleccionada: ' + selectedAction + '!');
-
-      // Mostrar la lista de estudiantes debajo de la ruleta
-      const studentList = document.getElementById('studentList');
-      studentList.innerHTML = ''; // Limpiar lista
-
-      // Agregar los estudiantes a la lista
-      "<% students.forEach(student => { %>"
-        const studentItem = document.createElement('li');
-        studentItem.textContent = '<%= student.nombre %> <%= student.apellido %>';
-        studentList.appendChild(studentItem);
-      "<% }); %>"
-    }
-
-    // Función para aplicar recompensa o castigo
-    function applyReward() {
-      const studentId = document.getElementById('studentSelect').value;
-      const action = document.getElementById('actionSelect').value;
-      const amount = document.getElementById('amountInput').value;
-      const studentName = document.getElementById('studentSelect').options[document.getElementById('studentSelect').selectedIndex].text;
-
-      if (!amount || amount <= 0) {
-        alert('Por favor, ingresa una cantidad válida');
-        return;
-      }
-
-      // Simular aplicación de recompensa
-      alert(`✅ Aplicando ${action.toUpperCase()} de ${amount} puntos a ${studentName}`);
-      
-      // Limpiar formulario
-      document.getElementById('amountInput').value = '10';
-    }
-
-    // Cargar estudiantes al inicio
-    document.addEventListener('DOMContentLoaded', function() {
-      showSelectedStudents();
-    });
-  </script>
-
+            // Enviar los datos al servidor usando fetch
+            fetch('/applyReward', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    studentId: studentId,
+                    action: action,
+                    value: value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Aquí podrías actualizar la UI o recargar los datos si es necesario
+                } else {
+                    alert("Hubo un error al aplicar la acción.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>

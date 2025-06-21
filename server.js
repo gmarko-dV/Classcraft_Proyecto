@@ -140,20 +140,32 @@ app.get('/dashboard', (req, res) => {
       });
     });
   } else if (req.session.user.role === 'alumno') {
-    const queryStudent = 'SELECT * FROM estudiantes WHERE id_usuario = ?';
+    // Obtener información del estudiante (incluyendo clase y sección)
+    const queryStudent = `
+      SELECT 
+        u.nombre, u.apellido, u.id AS student_id, 
+        e.oro, e.personaje, e.hp, e.xp, 
+        c.nombre AS clase, s.nombre AS seccion
+      FROM estudiantes e
+      INNER JOIN usuarios u ON e.id_usuario = u.id
+      LEFT JOIN clase_estudiantes ce ON e.id_usuario = ce.id_estudiante
+      LEFT JOIN clases c ON ce.id_clase = c.id
+      LEFT JOIN secciones s ON ce.id_seccion = s.id
+      WHERE u.id = ?`;
+
     db.query(queryStudent, [req.session.user.id], (err, studentData) => {
       if (err) {
         console.error('Error al obtener datos del alumno: ', err);
         return res.status(500).send('Error al obtener datos del alumno');
       }
-      const student = studentData[0];
+
+      const student = studentData[0]; // Tomamos el primer (y único) resultado
       res.render('dashboard-student', { user: req.session.user, student });
     });
   } else {
     res.status(403).send('Acceso no autorizado');
   }
 });
-
 
 // Ruta para mostrar el formulario de creación de clase
 app.get('/create-class', (req, res) => {
@@ -416,35 +428,71 @@ app.post('/edit-student-assignment/:student_id', (req, res) => {
 });
 
 
+// Ruta para mostrar la página de la ruleta
 app.get('/roulette', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
+    try {
+        // Obtener estudiantes de la base de datos
+        const query = 'SELECT id_usuario, nombre, apellido FROM estudiantes INNER JOIN usuarios ON estudiantes.id_usuario = usuarios.id WHERE usuarios.rol = "alumno"';
+        db.query(query, (err, result) => {
+            if (err) {
+                console.error('Error al obtener estudiantes:', err);
+                return res.status(500).send('Error al obtener estudiantes');
+            }
 
-  // Obtener estudiantes con rol 'alumno'
-  const query = 'SELECT id_usuario, nombre, apellido FROM estudiantes INNER JOIN usuarios ON estudiantes.id_usuario = usuarios.id WHERE usuarios.rol = "alumno"';
-  
-  db.query(query, (err, result) => {
-    if (err) {
-      console.error('Error al obtener estudiantes:', err);
-      return res.status(500).send('Error al obtener estudiantes');
+            // Datos del juego
+            const gameData = {
+                playerName: req.session?.playerName || 'Jugador',
+                currentXP: req.session?.xp || 0,
+                currentHP: req.session?.hp || 100,
+                currentGold: req.session?.gold || 0,
+                students: result // Los estudiantes obtenidos de la base de datos
+            };
+
+            // Renderizar la vista de la ruleta
+            res.render('ruleta', { 
+                title: 'Ruleta del Destino',
+                gameData: gameData
+            });
+        });
+    } catch (error) {
+        console.error('Error al cargar la ruleta:', error);
+        res.status(500).send('Error interno del servidor');
     }
-
-    // Pasamos los estudiantes y premios/castigos a la vista
-    const prizesAndPunishments = [
-      { fillStyle: '#eae56f', text: 'Gana 10 XP' },
-      { fillStyle: '#89f26e', text: 'Pierde 5 HP' },
-      { fillStyle: '#7de6eb', text: 'Responde pregunta +5 HP' },
-      { fillStyle: '#f9d056', text: 'Equipo gana 10 XP' }
-    ];
-
-    res.render('ruleta', { 
-      students: result, 
-      prizesAndPunishments: prizesAndPunishments 
-    });
-  });
 });
 
+// Ruta para manejar las acciones de recompensas y castigos
+app.post('/applyReward', (req, res) => {
+    const { studentId, action, value } = req.body;  // Obtener datos del formulario
+
+    let query = '';
+    let values = [];
+
+    // Según la acción seleccionada, armamos la consulta SQL
+    if (action === 'oro_add') {
+        query = 'UPDATE estudiantes SET oro = oro + ? WHERE id_usuario = ?';
+        values = [value, studentId];
+    } else if (action === 'xp_add') {
+        query = 'UPDATE estudiantes SET xp = xp + ? WHERE id_usuario = ?';
+        values = [value, studentId];
+    } else if (action === 'hp_sub') {
+        query = 'UPDATE estudiantes SET hp = hp - ? WHERE id_usuario = ?';
+        values = [value, studentId];
+    } else if (action === 'xp_sub') {
+        query = 'UPDATE estudiantes SET xp = xp - ? WHERE id_usuario = ?';
+        values = [value, studentId];
+    }
+
+    // Ejecutar la consulta SQL
+    db.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error al aplicar la recompensa o castigo:', err);
+            return res.status(500).send('Error al aplicar recompensa o castigo');
+        }
+
+        // Responder con éxito
+        res.json({ success: true, message: 'Acción aplicada correctamente' });
+    });
+});
 
 // Escuchar en el puerto 3000
 app.listen(port, () => {

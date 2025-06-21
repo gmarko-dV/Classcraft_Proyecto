@@ -25,12 +25,16 @@
     <% } else { %>
       <p>Aún no has seleccionado un personaje.</p>
     <% } %>
-        <!-- Mostrar HP -->
+    
+    <!-- Mostrar HP -->
     <p><strong>HP:</strong> <%= student.hp %> / 100</p>
     
     <!-- Mostrar XP -->
     <p><strong>XP:</strong> <%= student.xp %> / 100</p>
-    
+
+    <!-- Mostrar Clase y Sección -->
+    <p><strong>Clase:</strong> <%= student.clase || 'Sin clase asignada' %></p>
+    <p><strong>Sección:</strong> <%= student.seccion || 'Sin sección asignada' %></p>
   </section>
 
   <footer>
