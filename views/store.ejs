@@ -3,6 +3,296 @@
 <head>
   <meta charset="UTF-8">
   <title>Mi Classcraft - Tienda</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('/images/background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: #fff;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(64, 171, 164, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(253, 230, 196, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(64, 171, 164, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Encabezado */
+    header {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(2, 71, 68, 0.6));
+      backdrop-filter: blur(15px);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(64, 171, 164, 0.3);
+    }
+
+    header nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    header nav a {
+      color: #FDE6C4;
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header nav a:hover {
+      background: rgba(64, 171, 164, 0.2);
+      color: #fff;
+    }
+
+    /* Sección principal */
+    .store {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .store h1 {
+      text-align: center;
+      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        filter: drop-shadow(0 0 10px rgba(64, 171, 164, 0.3));
+      }
+      to {
+        filter: drop-shadow(0 0 20px rgba(64, 171, 164, 0.6));
+      }
+    }
+
+    /* Grid de artículos */
+    .items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .item {
+      background: linear-gradient(145deg, 
+        rgba(25, 25, 60, 0.95) 0%, 
+        rgba(45, 25, 80, 0.92) 25%,
+        rgba(65, 45, 100, 0.90) 50%,
+        rgba(85, 65, 120, 0.88) 75%,
+        rgba(105, 85, 140, 0.85) 100%);
+      backdrop-filter: blur(20px);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(64, 171, 164, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(253, 230, 196, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .item:hover::before {
+      left: 100%;
+    }
+
+    .item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(64, 171, 164, 0.3);
+      border-color: #40ABA4;
+    }
+
+    .item img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+      border: 3px solid rgba(64, 171, 164, 0.3);
+    }
+
+    .item:hover img {
+      transform: scale(1.05);
+      border-color: #40ABA4;
+    }
+
+    .item-name {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #FDE6C4;
+      margin: 0.5rem 0;
+    }
+
+    .item-description {
+      color: #ccc;
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+      line-height: 1.4;
+      min-height: 2.8rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .item-price {
+      color: #40ABA4;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .item-price::before {
+      content: '🪙';
+      font-size: 1.5rem;
+    }
+
+    /* Botón de compra */
+    .item button {
+      background: linear-gradient(135deg, #40ABA4 0%, #FDE6C4 50%, #40ABA4 100%);
+      color: #024744;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 8px 25px rgba(64, 171, 164, 0.4);
+    }
+
+    .item button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .item button:hover::before {
+      left: 100%;
+    }
+
+    .item button:hover {
+      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 35px rgba(64, 171, 164, 0.6);
+    }
+
+    .item button:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(2, 71, 68, 0.6));
+      color: #888;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+      border-top: 1px solid rgba(64, 171, 164, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    footer p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .store {
+        padding: 0 1rem;
+      }
+
+      .store h1 {
+        font-size: 2rem;
+      }
+
+      .items {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+    }
+
+    /* Animaciones adicionales */
+    .item {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .item:nth-child(1) { animation-delay: 0.1s; }
+    .item:nth-child(2) { animation-delay: 0.2s; }
+    .item:nth-child(3) { animation-delay: 0.3s; }
+    .item:nth-child(4) { animation-delay: 0.4s; }
+    .item:nth-child(5) { animation-delay: 0.5s; }
+    .item:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -21,8 +311,9 @@
       <% articulos.forEach(item => { %>
         <div class="item">
           <img src="/images/<%= item.url_imagen %>" alt="<%= item.nombre %>" width="150">
-          <p><%= item.nombre %></p>
-          <p>Precio: <%= item.precio %> de oro</p>
+          <p class="item-name"><%= item.nombre %></p>
+          <p class="item-description"><%= item.descripcion %></p>
+          <p class="item-price">Precio: <%= item.precio %> de oro</p>
           <form action="/comprar" method="POST">
             <input type="hidden" name="id_estudiante" value="<%= user.id %>">
             <input type="hidden" name="id_articulo" value="<%= item.id %>">

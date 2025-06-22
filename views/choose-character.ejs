@@ -3,39 +3,332 @@
 <head>
   <meta charset="UTF-8">
   <title>Escoge tu personaje</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(64, 171, 164, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(64, 171, 164, 0.6); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('/images/background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(64, 171, 164, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(253, 230, 196, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(64, 171, 164, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    .character-selection-form {
+      background: linear-gradient(145deg, 
+        rgba(25, 25, 60, 0.95) 0%, 
+        rgba(45, 25, 80, 0.92) 25%,
+        rgba(65, 45, 100, 0.90) 50%,
+        rgba(85, 65, 120, 0.88) 75%,
+        rgba(105, 85, 140, 0.85) 100%);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 3rem;
+      border: 2px solid rgba(64, 171, 164, 0.4);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 50px rgba(64, 171, 164, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      max-width: 1000px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      animation: glow 4s ease-in-out infinite;
+    }
+
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .character-option {
+      position: relative;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+
+    .character-option:hover {
+      transform: translateY(-15px);
+    }
+
+    input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    label {
+      display: block;
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.15), rgba(64, 171, 164, 0.05));
+      border: 2px solid rgba(64, 171, 164, 0.4);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    label:hover {
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.25), rgba(64, 171, 164, 0.1));
+      box-shadow: 0 15px 40px rgba(64, 171, 164, 0.3);
+      border-color: rgba(64, 171, 164, 0.6);
+    }
+
+    input[type="radio"]:checked + label {
+      border-color: #40ABA4;
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.3), rgba(64, 171, 164, 0.1));
+      transform: scale(1.05);
+      box-shadow: 0 20px 50px rgba(64, 171, 164, 0.4), 0 0 30px rgba(64, 171, 164, 0.5);
+    }
+
+    .character-name {
+      font-size: 1.6rem;
+      color: #FDE6C4;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .character-image {
+      position: relative;
+      margin: 1rem 0 1.5rem;
+      z-index: 1;
+    }
+
+    .character-image img {
+      width: 100%;
+      max-width: 250px;
+      height: auto;
+      border-radius: 10px;
+      border: 6px solid rgba(64, 171, 164, 0.8);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 30px rgba(64, 171, 164, 0.5);
+      transition: all 0.4s ease;
+      object-fit: contain;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .character-image img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(64, 171, 164, 0.6);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1rem;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.8rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(64, 171, 164, 0.3);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+
+    .hp {
+      color: #ff6b6b;
+      font-weight: 600;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .ap {
+      color: #4ecdc4;
+      font-weight: 600;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #40ABA4 0%, #FDE6C4 50%, #40ABA4 100%);
+      color: #024744;
+      border: none;
+      padding: 1rem 3rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 25px rgba(64, 171, 164, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 35px rgba(64, 171, 164, 0.6);
+    }
+
+    .submit-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .character-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .character-selection-form {
+        padding: 2rem;
+        margin: 1rem;
+      }
+
+      .character-image img {
+        width: 140px;
+        height: 140px;
+      }
+
+      .submit-btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>Escoge tu personaje</h1>
-  <form action="/select-character" method="POST">
-    <div>
-      <input type="radio" name="character" value="Guardian" id="guardian" required>
-      <label for="guardian">
-        <strong>Guardian</strong><br>
-        <img src="/images/guardian.png" alt="Guardian" width="150"><br>
-        <span style="color:red;">80 HP</span> | <span style="color:blue;">30 AP</span>
-      </label>
+  <form action="/select-character" method="POST" class="character-selection-form">
+    <div class="character-grid">
+      <div class="character-option">
+        <input type="radio" name="character" value="Guardian" id="guardian" required>
+        <label for="guardian">
+          <div class="character-name">Guardian</div>
+          <div class="character-image">
+            <img src="/images/guardian.png" alt="Guardian">
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">HP</div>
+              <div class="hp">80</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">AP</div>
+              <div class="ap">30</div>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div class="character-option">
+        <input type="radio" name="character" value="Mage" id="mage">
+        <label for="mage">
+          <div class="character-name">Mage</div>
+          <div class="character-image">
+            <img src="/images/mage.png" alt="Mage">
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">HP</div>
+              <div class="hp">30</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">AP</div>
+              <div class="ap">50</div>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div class="character-option">
+        <input type="radio" name="character" value="Healer" id="healer">
+        <label for="healer">
+          <div class="character-name">Healer</div>
+          <div class="character-image">
+            <img src="/images/healer.png" alt="Healer">
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">HP</div>
+              <div class="hp">50</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">AP</div>
+              <div class="ap">35</div>
+            </div>
+          </div>
+        </label>
+      </div>
     </div>
 
-    <div>
-      <input type="radio" name="character" value="Mage" id="mage">
-      <label for="mage">
-        <strong>Mage</strong><br>
-        <img src="/images/mage.png" alt="Mage" width="150"><br>
-        <span style="color:red;">30 HP</span> | <span style="color:blue;">50 AP</span>
-      </label>
-    </div>
-
-    <div>
-      <input type="radio" name="character" value="Healer" id="healer">
-      <label for="healer">
-        <strong>Healer</strong><br>
-        <img src="/images/healer.png" alt="Healer" width="150"><br>
-        <span style="color:red;">50 HP</span> | <span style="color:blue;">35 AP</span>
-      </label>
-    </div>
-
-    <br>
-    <button type="submit">Seleccionar</button>
+    <button type="submit" class="submit-btn">Seleccionar</button>
   </form>
 </body>
 </html>

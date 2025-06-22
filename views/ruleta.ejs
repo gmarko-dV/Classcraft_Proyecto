@@ -5,42 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruleta del Juego</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(64, 171, 164, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(64, 171, 164, 0.6); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/background.jpg') center center / cover no-repeat fixed;
             min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(64, 171, 164, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(253, 230, 196, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(64, 171, 164, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(64, 171, 164, 0.2);
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(64, 171, 164, 0.1);
             text-align: center;
-            max-width: 800px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            max-width: 900px;
+            width: 95%;
+            margin: 20px auto;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(45deg, #40ABA4, transparent, #FDE6C4, transparent, #40ABA4);
+            background-size: 400% 400%;
+            animation: shimmer 3s linear infinite;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
         }
 
         h1 {
-            color: #333;
+            background: linear-gradient(135deg, #40ABA4 0%, #FDE6C4 50%, #40ABA4 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3em;
+            font-weight: 700;
             margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 0 30px rgba(64, 171, 164, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
         .roulette-container {
             position: relative;
             display: inline-block;
-            margin: 20px 0;
+            margin: 30px 0;
+            animation: float 8s ease-in-out infinite;
         }
 
         .roulette {
@@ -49,11 +114,13 @@
             border-radius: 50%;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+                        0 0 60px rgba(64, 171, 164, 0.3),
+                        inset 0 0 20px rgba(64, 171, 164, 0.1);
             transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 3px solid rgba(64, 171, 164, 0.4);
         }
 
-        /* Colores de los segmentos */
         .segment {
             position: absolute;
             width: 50%;
@@ -64,49 +131,51 @@
             justify-content: center;
             font-weight: bold;
             font-size: 14px;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            color: #FDE6C4;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
             text-align: center;
             padding: 10px;
             box-sizing: border-box;
+            border: 1px solid rgba(64, 171, 164, 0.2);
         }
 
         .segment:nth-child(1) {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52); /* Gana XP */
+            background: linear-gradient(45deg, #40ABA4, #52CCC4);
             transform: rotate(0deg);
         }
 
         .segment:nth-child(2) {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d); /* Pierde HP */
+            background: linear-gradient(45deg, #E74C3C, #C0392B);
             transform: rotate(72deg);
         }
 
         .segment:nth-child(3) {
-            background: linear-gradient(45deg, #45b7d1, #96c93d); /* Gana Gold */
+            background: linear-gradient(45deg, #F39C12, #E67E22);
             transform: rotate(144deg);
         }
 
         .segment:nth-child(4) {
-            background: linear-gradient(45deg, #f39c12, #e74c3c); /* Pierde XP */
+            background: linear-gradient(45deg, #8E44AD, #9B59B6);
             transform: rotate(216deg);
         }
 
         .segment:nth-child(5) {
-            background: linear-gradient(45deg, #9b59b6, #8e44ad); /* Equipo gana Gold */
+            background: linear-gradient(45deg, #2ECC71, #27AE60);
             transform: rotate(288deg);
         }
 
         .pointer {
             position: absolute;
-            top: -10px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #333;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #FDE6C4;
             z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
         }
 
         .center-circle {
@@ -114,117 +183,246 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #333, #555);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #40ABA4, #52CCC4);
             border-radius: 50%;
             z-index: 5;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 0 30px rgba(64, 171, 164, 0.6),
+                        inset 0 0 20px rgba(0, 0, 0, 0.3);
+            border: 3px solid #FDE6C4;
         }
 
         .spin-button {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
+            background: linear-gradient(135deg, #40ABA4 0%, #52CCC4 50%, #40ABA4 100%);
+            color: #FDE6C4;
+            border: 2px solid rgba(253, 230, 196, 0.3);
+            padding: 18px 40px;
+            font-size: 20px;
+            font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
-            margin: 20px;
+            margin: 30px;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(64, 171, 164, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
         .spin-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(64, 171, 164, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        .spin-button:hover::before {
+            left: 100%;
+        }
+
+        .spin-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: scale(0.95);
         }
 
         .result {
-            margin-top: 20px;
-            padding: 20px;
-            background: linear-gradient(45deg, #f093fb, #f5576c);
-            color: white;
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(64, 171, 164, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(64, 171, 164, 0.3);
+            color: #FDE6C4;
             border-radius: 15px;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            min-height: 60px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.5s ease;
+            text-shadow: 0 0 10px rgba(64, 171, 164, 0.5);
         }
 
         .result.show {
             opacity: 1;
             transform: translateY(0);
-        }
-
-        .reward-form {
-            margin-top: 30px;
-        }
-
-        .reward-form label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-
-        .reward-form select {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0 20px;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-
-        .reward-form input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0 20px;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-
-        .reward-form button {
-            padding: 10px 20px;
-            background-color: #764ba2;
-            color: white;
-            border: none;
-            font-size: 1.2em;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .reward-form button:hover {
-            background-color: #667eea;
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
         .rewards-list {
-            margin-left: 50px;
+            margin: 40px 0;
             font-size: 1.2em;
             text-align: left;
             list-style: none;
             padding: 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(64, 171, 164, 0.2);
         }
 
         .rewards-list li {
             margin-bottom: 15px;
+            padding: 10px 15px;
+            background: rgba(64, 171, 164, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #40ABA4;
+            transition: all 0.3s ease;
+        }
+
+        .rewards-list li:hover {
+            background: rgba(64, 171, 164, 0.2);
+            transform: translateX(10px);
+        }
+
+        .reward-form {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(64, 171, 164, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .reward-form h3 {
+            color: #40ABA4;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(64, 171, 164, 0.3);
+        }
+
+        .reward-form label {
+            display: block;
+            margin: 15px 0 8px;
+            color: #FDE6C4;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .reward-form select,
+        .reward-form input {
+            width: 100%;
+            padding: 15px 20px;
+            margin: 5px 0 20px;
+            border: 2px solid rgba(64, 171, 164, 0.3);
+            border-radius: 12px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.1);
+            color: #FDE6C4;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .reward-form select:focus,
+        .reward-form input:focus {
+            outline: none;
+            border-color: #40ABA4;
+            box-shadow: 0 0 20px rgba(64, 171, 164, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .reward-form select option {
+            background: #1a1a2e;
+            color: #FDE6C4;
+        }
+
+        .reward-form button {
+            width: 100%;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, #40ABA4 0%, #52CCC4 100%);
+            color: #FDE6C4;
+            border: 2px solid rgba(253, 230, 196, 0.3);
+            font-size: 1.2em;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(64, 171, 164, 0.3);
+        }
+
+        .reward-form button:hover {
+            background: linear-gradient(135deg, #52CCC4 0%, #40ABA4 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(64, 171, 164, 0.5);
+        }
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: linear-gradient(135deg, rgba(64, 171, 164, 0.3), rgba(64, 171, 164, 0.1));
+            border: 1px solid rgba(64, 171, 164, 0.5);
+            color: #40ABA4;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+        .back-button:hover {
+            background: linear-gradient(135deg, rgba(64, 171, 164, 0.5), rgba(64, 171, 164, 0.2));
+            color: #FDE6C4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(64, 171, 164, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .roulette {
+                width: 300px;
+                height: 300px;
+            }
+
+            .spin-button {
+                padding: 15px 30px;
+                font-size: 18px;
+            }
+
+            .rewards-list {
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-
+    <a href="/dashboard" class="back-button">← Volver al Dashboard</a>
     <div class="container">
         <h1>🎰 Ruleta del Destino</h1>
         
         <div class="roulette-container">
             <div class="pointer"></div>
             <div class="roulette" id="roulette">
-                <!-- Los segmentos ahora son visibles con colores y texto oculto -->
                 <div class="segment" style="transform: rotate(0deg);"></div>
                 <div class="segment" style="transform: rotate(72deg);"></div>
                 <div class="segment" style="transform: rotate(144deg);"></div>
@@ -248,7 +446,6 @@
             <li>🎉 Equipo gana 50 Gold</li>
         </ul>
 
-        <!-- Formulario para aumentar/disminuir oro, HP y XP -->
         <div class="reward-form">
             <h3>Recompensas y Castigos</h3>
             <label for="student">Estudiante:</label>
@@ -298,28 +495,22 @@
             spinButton.classList.add('spinning');
             spinButton.textContent = 'GIRANDO...';
             
-            // Ocultar resultado anterior
             result.classList.remove('show');
             
-            // Calcular rotación aleatoria
-            const randomSpin = Math.random() * 360 + 1440; // Al menos 4 vueltas completas
+            const randomSpin = Math.random() * 360 + 1440;
             const finalRotation = randomSpin % 360;
             
-            // Aplicar rotación
             roulette.style.transform = `rotate(${randomSpin}deg)`;
             
-            // Calcular resultado basado en la rotación final
             setTimeout(() => {
                 const segmentAngle = 360 / options.length;
                 const adjustedRotation = (360 - finalRotation + segmentAngle / 2) % 360;
                 const winningIndex = Math.floor(adjustedRotation / segmentAngle);
                 const winningOption = options[winningIndex];
 
-                // Mostrar el resultado correcto en la parte inferior
                 result.textContent = `🎉 ${winningOption} 🎉`;
                 result.classList.add('show');
                 
-                // Enviar resultado al servidor
                 fetch('/roulette/result', {
                     method: 'POST',
                     headers: {
@@ -335,7 +526,6 @@
                     console.error('Error:', error);
                 });
                 
-                // Resetear botón
                 isSpinning = false;
                 spinButton.disabled = false;
                 spinButton.classList.remove('spinning');
@@ -344,22 +534,18 @@
             }, 3000);
         }
 
-        // Lógica para aplicar recompensas o castigos
         document.getElementById('submitAction').addEventListener('click', function(e) {
-            e.preventDefault();  // Prevenir que se recargue la página al enviar el formulario
+            e.preventDefault();
 
-            // Obtener los valores del formulario
             const studentId = document.getElementById('studentSelect').value;
             const action = document.getElementById('actionSelect').value;
             const value = document.getElementById('valueInput').value;
 
-            // Verificar si el valor es válido
             if (value <= 0 || !value) {
                 alert("Por favor, ingresa un valor válido.");
                 return;
             }
 
-            // Enviar los datos al servidor usando fetch
             fetch('/applyReward', {
                 method: 'POST',
                 headers: {
@@ -375,7 +561,6 @@
             .then(data => {
                 if (data.success) {
                     alert(data.message);
-                    // Aquí podrías actualizar la UI o recargar los datos si es necesario
                 } else {
                     alert("Hubo un error al aplicar la acción.");
                 }
