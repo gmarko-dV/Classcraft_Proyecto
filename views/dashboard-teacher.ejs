@@ -3,62 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <title>Mi Classcraft - Dashboard Profesor</title>
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/logout">Cerrar sesión</a></li>
-        <li><a href="/store">Tienda</a></li>
-
-        <% if (user.role === 'profesor') { %>
-          <li><a href="/create-class">Crear Clase</a></li>
-          <li><a href="/add-student">Agregar Estudiante</a></li>
-          <li><a href="/roulette">Jugar Ruleta</a></li>
-        <% } %>
-      </ul>
-    </nav>
-  </header>
-
-  <section class="user-info">
-    <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
-    <p>Rol: <%= user.role %></p>
-
-    <img src="/images/professor-profile.png" alt="Imagen de perfil del profesor" width="150" style="border-radius: 50%;"> 
-
-    <p>Asignatura: <%= subject || 'Sin asignatura asignada' %></p>
-  </section>
-
-  <h2>Mis Clases</h2>
-
-  <% if (showCreateClassButton) { %>
-    <p><%= message %></p>
-    <a href="/create-class">Crear una nueva clase</a>
-  <% } else { %>
-    <% studentsByClass.forEach(classGroup => { %>
-      <div class="class">
-        <h3>Clase: <%= classGroup.class.nombre %> - <%= classGroup.class.asignatura %></h3>
-
-        <% classGroup.sections.forEach(classSection => { %>
-          <h4>Sección: <%= classSection.section.nombre %></h4>
-
-          <h5>Estudiantes:</h5>
-          <ul>
-            <% classSection.students.forEach(student => { %>
-              <li>
-                <%= student.nombre %> <%= student.apellido %>
-                <a href="/edit-student-assignment/<%= student.student_id %>">Editar Asignación</a>
-              </li>
-            <% }) %>
-          </ul>
-        <% }) %>
+  <div class="main-layout">
+    <!-- Sidebar izquierdo -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="/images/logo.png" alt="Logo">
+        </div>
+        <div class="user-badge">Profesor</div>
       </div>
-    <% }) %>
-  <% } %>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <h3>Navegación</h3>
+          <a href="/dashboard" class="nav-item active">🏠 Dashboard</a>
+          <a href="/store" class="nav-item">🛒 Tienda</a>
+          <% if (user.role === 'profesor') { %>
+            <a href="/create-class" class="nav-item">➕ Crear Clase</a>
+            <a href="/add-student" class="nav-item">👥 Agregar Estudiante</a>
+            <a href="/roulette" class="nav-item">🎲 Jugar Ruleta</a>
+          <% } %>
+          <a href="/logout" class="nav-item">🚪 Cerrar sesión</a>
+        </div>
 
-  <footer>
-    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
-  </footer>
+        <% if (!showCreateClassButton && studentsByClass && studentsByClass.length > 0) { %>
+          <div class="nav-section">
+            <h3>Mis Clases</h3>
+            <div class="students-section">
+              <% studentsByClass.forEach(classGroup => { %>
+                <div style="margin-bottom: 1.5rem;">
+                  <div style="color: #FDE6C4; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    📚 <%= classGroup.class.nombre %>
+                  </div>
+                  <div style="color: #40ABA4; font-size: 0.8rem; margin-bottom: 0.8rem;">
+                    <%= classGroup.class.asignatura %>
+                  </div>
+                  
+
+                  <% classGroup.sections.forEach(classSection => { %>
+                    <div style="color: #54a0ff; font-size: 0.8rem; margin: 0.5rem 0;">
+                      Sección: <%= classSection.section.nombre %>
+                    </div>
+                    
+                    <% classSection.students.forEach(student => { %>
+                      <div class="student-item">
+                        <span class="student-name"><%= student.nombre %> <%= student.apellido %></span>
+                        <a href="/edit-student-assignment/<%= student.student_id %>" class="student-edit">✏️</a>
+                      </div>
+                    <% }) %>
+                  <% }) %>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+      </nav>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+      <!-- Header superior -->
+      <header class="top-header">
+        <div class="header-nav">
+          <div>
+            <span style="color: #FDE6C4; font-weight: 600; font-size: 1.1rem;">Academia de Héroes</span>
+          </div>
+          <div class="user-badge">
+            <%= user.first_name %> <%= user.last_name %>
+          </div>
+        </div>
+      </header>
+
+      <!-- Área del personaje -->
+      <section class="character-area">
+        <div class="character-card">
+          <h1 class="character-name"><%= user.first_name %> <%= user.last_name %></h1>
+          <div class="character-stats">
+            <div class="stat-row">
+              <span class="stat-label">Asignatura:</span>
+              <span class="stat-value"><%= subject || 'Base de Datos' %></span>
+            </div>
+          </div>
+          
+          <div class="character-avatar">
+            <img src="/images/professor-profile.png" alt="Avatar del profesor" width="400" height="400">
+          </div>
+          
+          <% if (showCreateClassButton) { %>
+            <div class="create-class-notice">
+              <p><%= message %></p>
+              <a href="/create-class" class="btn btn-secondary">Crear una nueva clase</a>
+            </div>
+          <% } else { %>
+            <div class="action-buttons">
+              <a href="/create-class" class="btn btn-primary">Nueva Clase</a>
+              <a href="/roulette" class="btn btn-secondary">Jugar Ruleta</a>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
+      </footer>
+    </main>
+  </div>
 </body>
 </html>

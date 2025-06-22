@@ -2,31 +2,423 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Asignar Estudiante</title>
+  <title>Asignar Estudiante - Mi Classcraft</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(64, 171, 164, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(64, 171, 164, 0.5); }
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+      min-height: 100vh;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(64, 171, 164, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(253, 230, 196, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(64, 171, 164, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .container {
+      background: linear-gradient(145deg, 
+        rgba(25, 25, 60, 0.95) 0%, 
+        rgba(45, 25, 80, 0.92) 25%,
+        rgba(65, 45, 100, 0.90) 50%,
+        rgba(85, 65, 120, 0.88) 75%,
+        rgba(105, 85, 140, 0.85) 100%);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 3rem;
+      max-width: 600px;
+      width: 100%;
+      border: 2px solid rgba(64, 171, 164, 0.4);
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.3),
+        0 0 50px rgba(64, 171, 164, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      animation: glow 4s ease-in-out infinite, fadeInUp 0.8s ease-out;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(253, 230, 196, 0.05), transparent);
+      animation: shimmer 6s infinite;
+      pointer-events: none;
+    }
+    
+    .container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 25px;
+      background: linear-gradient(135deg, 
+        rgba(64, 171, 164, 0.1) 0%, 
+        transparent 30%, 
+        transparent 70%, 
+        rgba(253, 230, 196, 0.1) 100%);
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      position: relative;
+      z-index: 1;
+      animation: slideInDown 0.8s ease-out;
+    }
+    
+    .form-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.8s ease-out;
+      animation-delay: 0.2s;
+      animation-fill-mode: both;
+    }
+    
+    .form-group:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+    
+    .form-group:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    label {
+      display: block;
+      color: #FDE6C4;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      font-size: 1.1rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    
+    label::before {
+      content: '✨';
+      margin-right: 0.5rem;
+      font-size: 1rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 2px solid rgba(64, 171, 164, 0.3);
+      border-radius: 15px;
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.1), rgba(64, 171, 164, 0.05));
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    
+    select:focus {
+      border-color: #40ABA4;
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.2), rgba(64, 171, 164, 0.1));
+      box-shadow: 
+        0 0 20px rgba(64, 171, 164, 0.4),
+        0 8px 25px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    select:hover {
+      border-color: rgba(64, 171, 164, 0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(64, 171, 164, 0.2);
+    }
+
+    option {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 0.5rem;
+      border: none;
+    }
+    
+    option:hover,
+    option:checked {
+      background: linear-gradient(135deg, #40ABA4, #024744);
+      color: #FDE6C4;
+    }
+
+    .submit-container {
+      text-align: center;
+      margin-top: 3rem;
+      animation: fadeInUp 0.8s ease-out;
+      animation-delay: 0.8s;
+      animation-fill-mode: both;
+    }
+
+    button {
+      background: linear-gradient(135deg, #40ABA4 0%, #FDE6C4 50%, #40ABA4 100%);
+      color: #024744;
+      border: none;
+      padding: 1.2rem 3rem;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(64, 171, 164, 0.4);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(64, 171, 164, 0.6);
+      animation-play-state: paused;
+    }
+    
+    button:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.3), rgba(64, 171, 164, 0.1));
+      border: 1px solid rgba(64, 171, 164, 0.5);
+      color: #40ABA4;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+    
+    .back-button:hover {
+      background: linear-gradient(135deg, rgba(64, 171, 164, 0.5), rgba(64, 171, 164, 0.2));
+      color: #FDE6C4;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(64, 171, 164, 0.3);
+    }
+    
+    /* Iconos para los selects */
+    .form-group {
+      position: relative;
+    }
+    
+    .form-group::after {
+      content: '📚';
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(10%);
+      pointer-events: none;
+      font-size: 1.2rem;
+      z-index: 2;
+    }
+    
+    .form-group:nth-child(2)::after {
+      content: '🏫';
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        margin: 1rem;
+        padding: 2rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .back-button {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-bottom: 2rem;
+        display: inline-block;
+      }
+      
+      button {
+        width: 100%;
+        padding: 1rem 2rem;
+      }
+      
+      select {
+        padding: 0.8rem 1rem;
+      }
+    }
+    
+    /* Efectos de partículas decorativas */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    
+    .particle-1 {
+      width: 4px;
+      height: 4px;
+      background: rgba(64, 171, 164, 0.6);
+      top: 20%;
+      left: 10%;
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    .particle-2 {
+      width: 6px;
+      height: 6px;
+      background: rgba(253, 230, 196, 0.5);
+      top: 60%;
+      right: 15%;
+      animation: float 5s ease-in-out infinite reverse;
+    }
+    
+    .particle-3 {
+      width: 3px;
+      height: 3px;
+      background: rgba(64, 171, 164, 0.4);
+      bottom: 30%;
+      left: 20%;
+      animation: float 6s ease-in-out infinite;
+    }
+  </style>
 </head>
 <body>
-  <h1>Asignar Estudiante:</h1>
+  <a href="/dashboard" class="back-button">← Volver al Dashboard</a>
+  
+  <div class="container">
+    <!-- Partículas decorativas -->
+    <div class="particle particle-1"></div>
+    <div class="particle particle-2"></div>
+    <div class="particle particle-3"></div>
+    
+    <h1>Asignar Estudiante</h1>
+    
+    <form action="/edit-student-assignment/<%= student.id_estudiante %>" method="POST" class="form-container">
+      <div class="form-group">
+        <label for="class">Clase:</label>
+        <select name="class_id" id="class">
+          <% classes.forEach(classItem => { %>
+            <option value="<%= classItem.id %>" <%= classItem.id === student.id_clase ? 'selected' : '' %> >
+              <%= classItem.nombre %> - <%= classItem.asignatura %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
 
-  <form action="/edit-student-assignment/<%= student.id_estudiante %>" method="POST">
-    <label for="class">Clase:</label>
-    <select name="class_id" id="class">
-      <% classes.forEach(classItem => { %>
-        <option value="<%= classItem.id %>" <%= classItem.id === student.id_clase ? 'selected' : '' %> >
-          <%= classItem.nombre %> - <%= classItem.asignatura %>
-        </option>
-      <% }) %>
-    </select>
+      <div class="form-group">
+        <label for="section">Sección:</label>
+        <select name="section_id" id="section">
+          <% sections.forEach(section => { %>
+            <option value="<%= section.id %>" <%= section.id === student.id_seccion ? 'selected' : '' %> >
+              <%= section.nombre %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
 
-    <label for="section">Sección:</label>
-    <select name="section_id" id="section">
-      <% sections.forEach(section => { %>
-        <option value="<%= section.id %>" <%= section.id === student.id_seccion ? 'selected' : '' %> >
-          <%= section.nombre %>
-        </option>
-      <% }) %>
-    </select>
-
-    <button type="submit">Actualizar Asignación</button>
-  </form>
+      <div class="submit-container">
+        <button type="submit">✨ Actualizar Asignación ✨</button>
+      </div>
+    </form>
+  </div>
 </body>
 </html>
