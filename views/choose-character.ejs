@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Escoge tu personaje</title>
   <style>
     * {
@@ -12,32 +13,48 @@
 
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-15px); }
     }
-
+    
     @keyframes glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(64, 171, 164, 0.3); }
-      50% { box-shadow: 0 0 40px rgba(64, 171, 164, 0.6); }
+      0%, 100% { box-shadow: 0 0 30px rgba(125, 160, 196, 0.3); }
+      50% { box-shadow: 0 0 60px rgba(125, 160, 196, 0.7); }
     }
 
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
     }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('/images/background.jpg') no-repeat center center fixed;
+      background: url('/images/fondo1.jpg') no-repeat center center fixed;
       background-size: cover;
       min-height: 100vh;
       color: #fff;
       overflow-x: hidden;
       position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
     }
 
     body::before {
@@ -48,287 +65,508 @@
       width: 100%;
       height: 100%;
       background: 
-        radial-gradient(circle at 20% 50%, rgba(64, 171, 164, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(253, 230, 196, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(64, 171, 164, 0.08) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(125, 160, 196, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(193, 232, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(5, 38, 89, 0.1) 0%, transparent 50%);
       pointer-events: none;
       z-index: -1;
     }
 
+    /* Partículas flotantes */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(125, 160, 196, 0.6);
+      border-radius: 50%;
+      animation: sparkle 3s infinite;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
     h1 {
-      font-size: 3rem;
-      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+      font-size: 4rem;
+      background: linear-gradient(135deg, #ffffff 0%, #c1e8ff 30%, #7da0c4 70%, #021024 100%);
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 2rem;
-      font-weight: 700;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
       text-align: center;
+      margin-bottom: 3rem;
+      font-weight: 800;
+      position: relative;
+      animation: slideInUp 1s ease-out;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #7da0c4, #c1e8ff, #7da0c4, transparent);
+      border-radius: 2px;
+      animation: glow 2s ease-in-out infinite;
     }
 
     .character-selection-form {
-      background: linear-gradient(145deg, 
-        rgba(25, 25, 60, 0.95) 0%, 
-        rgba(45, 25, 80, 0.92) 25%,
-        rgba(65, 45, 100, 0.90) 50%,
-        rgba(85, 65, 120, 0.88) 75%,
-        rgba(105, 85, 140, 0.85) 100%);
-      backdrop-filter: blur(20px);
-      border-radius: 25px;
-      padding: 3rem;
-      border: 2px solid rgba(64, 171, 164, 0.4);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 50px rgba(64, 171, 164, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
       width: 100%;
+      max-width: 1400px;
+    }
+
+    .character-option {
+      position: relative;
+      animation: slideInUp 1s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .character-option:nth-child(1) { animation-delay: 0.2s; }
+    .character-option:nth-child(2) { animation-delay: 0.4s; }
+    .character-option:nth-child(3) { animation-delay: 0.6s; }
+
+    .character-option input[type="radio"] {
+      display: none;
+    }
+
+    .character-option label {
+      display: block;
+      background: linear-gradient(145deg, 
+        rgba(10, 10, 46, 0.95) 0%, 
+        rgba(22, 33, 62, 0.92) 25%,
+        rgba(26, 54, 93, 0.90) 50%,
+        rgba(44, 82, 130, 0.88) 75%,
+        rgba(49, 130, 206, 0.85) 100%);
+      backdrop-filter: blur(25px);
+      border-radius: 30px;
+      padding: 2.5rem;
+      text-align: center;
+      border: 3px solid rgba(125, 160, 196, 0.5);
+      box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.4),
+        0 0 60px rgba(125, 160, 196, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
       animation: glow 4s ease-in-out infinite;
     }
 
-    .character-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-bottom: 2rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .character-option {
-      position: relative;
-      cursor: pointer;
-      transition: all 0.4s ease;
-    }
-
-    .character-option:hover {
-      transform: translateY(-15px);
-    }
-
-    input[type="radio"] {
+    .character-option label::before {
+      content: '';
       position: absolute;
-      opacity: 0;
-      cursor: pointer;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
     }
 
-    label {
-      display: block;
-      background: linear-gradient(135deg, rgba(64, 171, 164, 0.15), rgba(64, 171, 164, 0.05));
-      border: 2px solid rgba(64, 171, 164, 0.4);
-      border-radius: 20px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.4s ease;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
+    .character-option label:hover::before {
+      left: 100%;
     }
 
-    label:hover {
-      background: linear-gradient(135deg, rgba(64, 171, 164, 0.25), rgba(64, 171, 164, 0.1));
-      box-shadow: 0 15px 40px rgba(64, 171, 164, 0.3);
-      border-color: rgba(64, 171, 164, 0.6);
+    .character-option label:hover {
+      transform: translateY(-15px) scale(1.03);
+      box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        0 0 80px rgba(125, 160, 196, 0.5),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+      border-color: rgba(125, 160, 196, 0.8);
     }
 
-    input[type="radio"]:checked + label {
-      border-color: #40ABA4;
-      background: linear-gradient(135deg, rgba(64, 171, 164, 0.3), rgba(64, 171, 164, 0.1));
-      transform: scale(1.05);
-      box-shadow: 0 20px 50px rgba(64, 171, 164, 0.4), 0 0 30px rgba(64, 171, 164, 0.5);
+    .character-option input[type="radio"]:checked + label {
+      background: linear-gradient(145deg, 
+        rgba(125, 160, 196, 0.3) 0%, 
+        rgba(193, 232, 255, 0.25) 50%,
+        rgba(125, 160, 196, 0.3) 100%);
+      border-color: #7da0c4;
+      box-shadow: 
+        0 0 0 4px rgba(125, 160, 196, 0.5),
+        0 30px 60px rgba(0, 0, 0, 0.4),
+        0 0 100px rgba(125, 160, 196, 0.6);
+      transform: translateY(-10px) scale(1.02);
     }
 
     .character-name {
-      font-size: 1.6rem;
-      color: #FDE6C4;
-      font-weight: 600;
-      margin-bottom: 1rem;
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #ffffff 0%, #c1e8ff 50%, #7da0c4 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.5rem;
+      font-weight: 800;
+      position: relative;
+      z-index: 1;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
     }
 
     .character-image {
       position: relative;
-      margin: 1rem 0 1.5rem;
+      margin: 2rem 0;
       z-index: 1;
     }
 
     .character-image img {
-      width: 100%;
-      max-width: 250px;
-      height: auto;
-      border-radius: 10px;
-      border: 6px solid rgba(64, 171, 164, 0.8);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 30px rgba(64, 171, 164, 0.5);
-      transition: all 0.4s ease;
-      object-fit: contain;
-      animation: float 3s ease-in-out infinite;
+      width: 220px; 
+      height: 350px; 
+      border-radius: 50%;
+      border: 5px solid rgba(125, 160, 196, 0.7);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(125, 160, 196, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+      transition: all 0.5s ease;
+      object-fit: cover;
+      animation: float 4s ease-in-out infinite;
+      position: relative;
     }
 
-    .character-image img:hover {
-      transform: scale(1.1);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 40px rgba(64, 171, 164, 0.6);
+    .character-image::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #7da0c4, #c1e8ff, #7da0c4, #c1e8ff);
+      z-index: -1;
+      opacity: 0.4;
+      animation: spin 10s linear infinite;
+    }
+
+    .character-image:hover img {
+      transform: scale(1.05);
+      border-color: #c1e8ff;
     }
 
     .stats {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 1rem;
+      background: linear-gradient(135deg, rgba(125, 160, 196, 0.2), rgba(125, 160, 196, 0.1));
+      border: 2px solid rgba(125, 160, 196, 0.5);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-top: 2rem;
+      backdrop-filter: blur(15px);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
     }
 
     .stat {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0.8rem;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
-      backdrop-filter: blur(5px);
-      border: 1px solid rgba(64, 171, 164, 0.3);
+      gap: 0.8rem;
     }
 
     .stat-label {
-      font-size: 0.9rem;
-      color: #ccc;
-      margin-bottom: 0.3rem;
-      font-weight: 500;
-    }
-
-    .hp {
-      color: #ff6b6b;
+      color: #c1e8ff;
       font-weight: 600;
       font-size: 1.2rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .ap {
-      color: #4ecdc4;
-      font-weight: 600;
-      font-size: 1.2rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    .hp, .ap {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.8rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(125, 160, 196, 0.3), rgba(125, 160, 196, 0.1));
+      border: 2px solid rgba(125, 160, 196, 0.5);
+      min-width: 80px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .hp:hover, .ap:hover {
+      transform: scale(1.1);
+      background: linear-gradient(135deg, rgba(125, 160, 196, 0.4), rgba(125, 160, 196, 0.2));
     }
 
     .submit-btn {
-      background: linear-gradient(135deg, #40ABA4 0%, #FDE6C4 50%, #40ABA4 100%);
-      color: #024744;
+      padding: 1.5rem 4rem;
       border: none;
-      padding: 1rem 3rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border-radius: 12px;
+      border-radius: 20px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.4s ease;
-      box-shadow: 0 8px 25px rgba(64, 171, 164, 0.4);
+      position: relative;
+      overflow: hidden;
+      font-size: 1.3rem;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      display: block;
-      margin: 0 auto;
+      letter-spacing: 3px;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, #7da0c4 0%, #c1e8ff 50%, #7da0c4 100%);
+      color: #021024;
+      box-shadow: 0 15px 40px rgba(125, 160, 196, 0.5);
+      margin-top: 2rem;
+      border: 3px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
     }
 
     .submit-btn:hover {
-      background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 12px 35px rgba(64, 171, 164, 0.6);
+      transform: translateY(-8px) scale(1.08);
+      box-shadow: 0 25px 60px rgba(125, 160, 196, 0.7);
+      background: linear-gradient(135deg, #c1e8ff 0%, #7da0c4 50%, #c1e8ff 100%);
     }
 
     .submit-btn:active {
-      transform: translateY(-1px) scale(1.02);
+      transform: translateY(-4px) scale(1.04);
     }
 
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Animación de selección */
+    .selection-indicator {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7da0c4, #c1e8ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .character-option input[type="radio"]:checked + label .selection-indicator {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .selection-indicator::after {
+      content: '✓';
+      color: #021024;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
+      .character-name {
+        font-size: 1.8rem;
+      }
+      .character-image img {
+        width: 200px;
+        height: 200px;
+      }
+      .character-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
       h1 {
         font-size: 2rem;
       }
-
-      .character-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+      .character-name {
+        font-size: 1.5rem;
       }
-
-      .character-selection-form {
-        padding: 2rem;
-        margin: 1rem;
-      }
-
       .character-image img {
-        width: 140px;
-        height: 140px;
+        width: 150px;
+        height: 150px;
       }
-
       .submit-btn {
-        width: 100%;
-        max-width: 300px;
+        padding: 1.2rem 2.5rem;
+        font-size: 1.1rem;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Escoge tu personaje</h1>
-  <form action="/select-character" method="POST" class="character-selection-form">
-    <div class="character-grid">
-      <div class="character-option">
-        <input type="radio" name="character" value="Guardian" id="guardian" required>
-        <label for="guardian">
-          <div class="character-name">Guardian</div>
-          <div class="character-image">
-            <img src="/images/guardian.png" alt="Guardian">
-          </div>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat-label">HP</div>
-              <div class="hp">80</div>
+  <div class="particles" id="particles"></div>
+  
+  <div class="container">
+    <h1>Escoge tu personaje</h1>
+    <form action="/select-character" method="POST" class="character-selection-form">
+      <div class="character-grid">
+        <div class="character-option">
+          <input type="radio" name="character" value="Guardian" id="guardian" required>
+          <label for="guardian">
+            <div class="selection-indicator"></div>
+            <div class="character-name">Guardian</div>
+            <div class="character-image">
+              <img src="/images/guardian.png" alt="Guardian">
             </div>
-            <div class="stat">
-              <div class="stat-label">AP</div>
-              <div class="ap">30</div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-label">HP</div>
+                <div class="hp">80</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">XP</div>
+                <div class="ap">30</div>
+              </div>
             </div>
-          </div>
-        </label>
+          </label>
+        </div>
+
+        <div class="character-option">
+          <input type="radio" name="character" value="Mage" id="mage">
+          <label for="mage">
+            <div class="selection-indicator"></div>
+            <div class="character-name">Mage</div>
+            <div class="character-image">
+              <img src="/images/mage.png" alt="Mage">
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-label">HP</div>
+                <div class="hp">30</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">XP</div>
+                <div class="ap">50</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="character-option">
+          <input type="radio" name="character" value="Healer" id="healer">
+          <label for="healer">
+            <div class="selection-indicator"></div>
+            <div class="character-name">Healer</div>
+            <div class="character-image">
+              <img src="/images/healer.png" alt="Healer">
+            </div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-label">HP</div>
+                <div class="hp">50</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">XP</div>
+                <div class="ap">35</div>
+              </div>
+            </div>
+          </label>
+        </div>
       </div>
 
-      <div class="character-option">
-        <input type="radio" name="character" value="Mage" id="mage">
-        <label for="mage">
-          <div class="character-name">Mage</div>
-          <div class="character-image">
-            <img src="/images/mage.png" alt="Mage">
-          </div>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat-label">HP</div>
-              <div class="hp">30</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">AP</div>
-              <div class="ap">50</div>
-            </div>
-          </div>
-        </label>
-      </div>
+      <button type="submit" class="submit-btn" id="submitBtn" disabled>Seleccionar</button>
+    </form>
+  </div>
 
-      <div class="character-option">
-        <input type="radio" name="character" value="Healer" id="healer">
-        <label for="healer">
-          <div class="character-name">Healer</div>
-          <div class="character-image">
-            <img src="/images/healer.png" alt="Healer">
-          </div>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat-label">HP</div>
-              <div class="hp">50</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">AP</div>
-              <div class="ap">35</div>
-            </div>
-          </div>
-        </label>
-      </div>
-    </div>
+  <script>
+    // Crear partículas flotantes
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 30;
 
-    <button type="submit" class="submit-btn">Seleccionar</button>
-  </form>
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 3 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Habilitar botón cuando se selecciona un personaje
+    function enableSubmitButton() {
+      const radios = document.querySelectorAll('input[name="character"]');
+      const submitBtn = document.getElementById('submitBtn');
+
+      radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.checked) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+          }
+        });
+      });
+    }
+    // Animación de entrada escalonada
+    function animateCards() {
+      const cards = document.querySelectorAll('.character-option');
+      cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(50px)';
+        
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s ease-out';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 200 + 500);
+      });
+    }
+
+    // Inicializar efectos
+    document.addEventListener('DOMContentLoaded', function() {
+      createParticles();
+      enableSubmitButton();
+      addSelectionEffects();
+      animateCards();
+    });
+  </script>
 </body>
 </html>

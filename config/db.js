@@ -1,11 +1,10 @@
 const mysql = require('mysql2');
 
-// Crear la conexión con la base de datos MySQL
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'root', // Tu usuario de MySQL
-  password: '123456', // Tu contraseña de MySQL
-  database: 'classcraft' // El nombre de tu base de datos
+  user: 'root', 
+  password: '123456', 
+  database: 'classcraft' 
 });
 
 // Conectar a la base de datos

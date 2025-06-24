@@ -1,48 +1,787 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Mi Classcraft - Dashboard Estudiante</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Classcraft - Dashboard Estudiante</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(64, 171, 164, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(64, 171, 164, 0.6); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }  
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('/images/registro.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(64, 171, 164, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(253, 230, 196, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(64, 171, 164, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+
+            /* Encabezado */
+        header {
+          background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(2, 71, 68, 0.6));
+          backdrop-filter: blur(15px);
+          padding: 1rem 2rem;
+          box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+          border-bottom: 1px solid rgba(64, 171, 164, 0.3);
+        }
+
+        header nav ul {
+          list-style: none;
+          display: flex;
+          gap: 2rem;
+          justify-content: center;
+        }
+
+        header nav a {
+          color: #FDE6C4;
+          text-decoration: none;
+          font-size: 1rem;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        header nav a:hover {
+          background: rgba(64, 171, 164, 0.2);
+          color: #fff;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Sección de información del usuario */
+        .user-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .welcome-card {
+            background: linear-gradient(145deg, 
+                rgba(25, 25, 60, 0.95) 0%, 
+                rgba(45, 25, 80, 0.92) 25%,
+                rgba(65, 45, 100, 0.90) 50%,
+                rgba(85, 65, 120, 0.88) 75%,
+                rgba(105, 85, 140, 0.85) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid rgba(64, 171, 164, 0.4);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 50px rgba(64, 171, 164, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: glow 4s ease-in-out infinite;
+        }
+        
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(253, 230, 196, 0.05), transparent);
+            animation: shimmer 6s infinite;
+            pointer-events: none;
+        }
+        
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 25px;
+            background: linear-gradient(135deg, 
+                rgba(64, 171, 164, 0.1) 0%, 
+                transparent 30%, 
+                transparent 70%, 
+                rgba(253, 230, 196, 0.1) 100%);
+            pointer-events: none;
+        }
+
+        .user-name {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-role {
+            color: #FDE6C4;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, rgba(64, 171, 164, 0.3), rgba(64, 171, 164, 0.1));
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            border: 1px solid rgba(64, 171, 164, 0.5);
+            display: inline-block;
+        }
+
+        .gold-display {
+            background: linear-gradient(135deg, rgba(253, 230, 196, 0.2), rgba(253, 230, 196, 0.1));
+            border: 2px solid #FDE6C4;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .gold-display:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(253, 230, 196, 0.3);
+        }
+
+        .gold-amount {
+            font-size: 2rem;
+            color: #FDE6C4;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .gold-label {
+            color: #ccc;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Stats card */
+        .stats-card {
+            background: linear-gradient(135deg, rgba(64, 171, 164, 0.15), rgba(64, 171, 164, 0.05));
+            border: 1px solid rgba(64, 171, 164, 0.4);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats-title {
+            color: #40ABA4;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .stat-bar {
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #ccc;
+        }
+
+        .stat-value {
+            color: #FDE6C4;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            background: linear-gradient(90deg, #FF6B6B, #FF4757);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .xp-bar {
+            background: linear-gradient(90deg, #4ECDC4, #44A08D);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #40ABA4;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            color: #ccc;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            color: #FDE6C4;
+            font-weight: 600;
+        }
+
+        /* Character section */
+        .character-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .character-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .character-name {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #FDE6C4 0%, #40ABA4 50%, #FDE6C4 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .character-avatar {
+            position: relative;
+            margin: 2rem 0;
+            z-index: 1;
+        }
+
+        .character-avatar img {
+            border-radius: 50%;
+            border: 6px solid rgba(64, 171, 164, 0.6);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(64, 171, 164, 0.4),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            width: 420px;
+            height: 700px;
+            object-fit: cover;
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .character-avatar img:hover {
+            transform: scale(1.08) rotateY(10deg);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(64, 171, 164, 0.6),
+                inset 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+        
+        .character-avatar::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #40ABA4, #FDE6C4, #40ABA4);
+            z-index: -1;
+            opacity: 0.3;
+            animation: spin 8s linear infinite;
+        }
+
+        .character-placeholder {
+            position: relative;
+            z-index: 1;
+            width: 300px;
+            height: 300px;
+            margin: 2rem auto;
+            background: linear-gradient(45deg, rgba(64, 171, 164, 0.3), rgba(253, 230, 196, 0.3));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 6px solid rgba(64, 171, 164, 0.6);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(64, 171, 164, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .character-placeholder-content {
+            text-align: center;
+            color: #FDE6C4;
+        }
+
+        .character-placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .character-name-display {
+            color: #FDE6C4;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+            margin-top: 1rem;
+        }
+
+        /* Floating Item */
+        .floating-item {
+            position: absolute;
+            top: 50%;
+            right: -80px;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #FF6B6B, #FF4757);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 
+                0 15px 30px rgba(255, 107, 107, 0.4),
+                0 0 30px rgba(255, 107, 107, 0.3);
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            min-width: 120px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .floating-item::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #FF6B6B, #FF4757, #FF6B6B);
+            border-radius: 25px;
+            z-index: -1;
+            opacity: 0.7;
+            animation: spin 6s linear infinite;
+        }
+
+        .floating-item:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 
+                0 20px 40px rgba(255, 107, 107, 0.6),
+                0 0 40px rgba(255, 107, 107, 0.5);
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        .floating-item-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .floating-item-text {
+            font-size: 0.9rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Tooltip para el item */
+        .floating-item-tooltip {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #FDE6C4;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 20;
+            border: 1px solid rgba(64, 171, 164, 0.5);
+        }
+
+        .floating-item-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .floating-item:hover .floating-item-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        /* No items message */
+        .no-items-message {
+            position: absolute;
+            top: 50%;
+            right: -120px;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(64, 171, 164, 0.2), rgba(64, 171, 164, 0.1));
+            border: 2px dashed rgba(64, 171, 164, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+            text-align: center;
+            min-width: 140px;
+            backdrop-filter: blur(5px);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .no-items-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            opacity: 0.6;
+        }
+
+        .no-items-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(2, 71, 68, 0.6));
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+            border-top: 1px solid rgba(64, 171, 164, 0.3);
+            backdrop-filter: blur(10px);
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .character-container {
+                margin: 0 auto;
+            }
+            
+            .floating-item {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin: 2rem auto 0;
+                display: block;
+                width: fit-content;
+            }
+            
+            .no-items-message {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin: 2rem auto 0;
+                display: block;
+                width: fit-content;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .user-name {
+                font-size: 1.8rem;
+            }
+            
+            .character-name {
+                font-size: 2rem;
+            }
+            
+            .character-avatar img,
+            .character-placeholder {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .floating-item {
+                right: -60px;
+                min-width: 100px;
+                padding: 1rem;
+            }
+            
+            .no-items-message {
+                right: -100px;
+                min-width: 120px;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .floating-item,
+            .no-items-message {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin: 1rem auto 0;
+                display: block;
+                width: fit-content;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/logout">Cerrar sesión</a></li>
-        <li><a href="/store">Tienda</a></li>
-      </ul>
-    </nav>
-  </header>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/dashboard">🏠 Dashboard</a></li>
+                <li><a href="/store">🛒 Tienda</a></li>
+                <li><a href="/logout">🚪 Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <section class="user-info">
-    <h1>Bienvenido, <%= user.first_name %> <%= user.last_name %></h1>
-    <p>Rol: <%= user.role %></p>
-    <p>Oro disponible: <%= student.oro %></p>
-    <p>Personaje: <%= student.personaje || 'Sin personaje asignado' %></p>
-    <% if (student.personaje) { %>
-      <img src="/images/<%= student.personaje.toLowerCase() %>.png" alt="<%= student.personaje %>" width="150">
-    <% } else { %>
-      <p>Aún no has seleccionado un personaje.</p>
-    <% } %>
+    <div class="container">
+        <!-- Sección de usuario -->
+        <div class="user-section">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <h1 class="user-name">¡Bienvenido, <%= user.first_name %> <%= user.last_name %>!</h1>
+                <div class="user-role">👑 <%= user.role %></div>
+                
+                <div class="gold-display">
+                    <div class="gold-amount">🪙 <%= student.oro %></div>
+                    <div class="gold-label">Oro disponible</div>
+                </div>
+            </div>
 
-    <p><strong>HP:</strong> <%= student.hp %> / 100</p>
-    <p><strong>XP:</strong> <%= student.xp %> / 100</p>
-    <p><strong>Clase:</strong> <%= student.clase || 'Sin clase asignada' %></p>
-    <p><strong>Sección:</strong> <%= student.seccion || 'Sin sección asignada' %></p>
+            <!-- Stats Card -->
+            <div class="stats-card">
+                <h2 class="stats-title">📊 Estadísticas</h2>
+                
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>❤️ Vida (HP)</span>
+                        <span class="stat-value"><%= student.hp %>/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill hp-bar" style="width: '<%= student.hp %>%'"></div>
+                    </div>
+                </div>
 
-    <h2>Artículos Comprados:</h2>
-    <% if (student.articulo_comprado) { %>
-      <ul>
-        <li><%= student.articulo_comprado %></li>
-      </ul>
-    <% } else { %>
-      <p>Aún no has comprado artículos.</p>
-    <% } %>
-  </section>
+                <div class="stat-bar">
+                    <div class="stat-label">
+                        <span>⭐ Experiencia (XP)</span>
+                        <span class="stat-value"><%= student.xp %>/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill xp-bar" style="width: '<%= student.xp %>%'"></div>
+                    </div>
+                </div>
 
-  <footer>
-    <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados.</p>
-  </footer>
+                <div class="info-item">
+                    <div class="info-label">🎓 Clase</div>
+                    <div class="info-value"><%= student.clase || 'Sin clase asignada' %></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">📚 Sección</div>
+                    <div class="info-value"><%= student.seccion || 'Sin sección asignada' %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character Section -->
+        <div class="character-section">
+            <div class="character-container">
+                <h2 class="character-name">🎭 Tu Personaje</h2>
+                
+                <% if (student.personaje) { %>
+                    <div class="character-avatar">
+                        <img src="/images/<%= student.personaje.toLowerCase() %>.png" 
+                            alt="<%= student.personaje %>">
+                    </div>
+                    <h3 class="character-name-display">
+                        <%= student.personaje %>
+                    </h3>
+                <% } else { %>
+                    <div class="character-placeholder">
+                        <div class="character-placeholder-content">
+                            <span class="character-placeholder-icon">❓</span>
+                            <div>Selecciona tu personaje</div>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- Floating Item -->
+                <% if (student.articulo_comprado) { %>
+                    <div class="floating-item">
+                        <div class="floating-item-tooltip">¡Tu artículo equipado!</div>
+                        <span class="floating-item-icon">🏆</span>
+                        <div class="floating-item-text"><%= student.articulo_comprado %></div>
+                    </div>
+                <% } else { %>
+                    <div class="no-items-message">
+                        <span class="no-items-icon">🛍️</span>
+                        <div class="no-items-text">
+                            Sin artículos<br>
+                            <small>¡Visita la tienda!</small>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Mi Classcraft. Todos los derechos reservados. 🎮</p>
+    </footer>
+
+    <script>
+        // Animación de carga para las barras de progreso
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            
+            // Animación de entrada con delay
+            progressBars.forEach((bar, index) => {
+                const targetWidth = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, index * 300 + 500);
+            });
+
+            // Efecto hover en las cartas principales
+            const cards = document.querySelectorAll('.welcome-card, .stats-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

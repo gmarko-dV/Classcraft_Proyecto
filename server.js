@@ -518,7 +518,7 @@ app.post('/comprar', (req, res) => {
   db.query(queryArticulo, [id_articulo], (err, result) => {
     if (err) {
       console.error('Error al obtener el precio del artículo:', err);
-      return res.status(500).send('Error al obtener el precio del artículo');
+      return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
     }
 
     const precio = result[0].precio;
@@ -528,14 +528,15 @@ app.post('/comprar', (req, res) => {
     db.query(queryOro, [id_estudiante], (err, result) => {
       if (err) {
         console.error('Error al obtener el oro del estudiante:', err);
-        return res.status(500).send('Error al obtener el oro del estudiante');
+        return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
       }
 
       const oroDisponible = result[0].oro;
 
       // Verificar si el estudiante tiene suficiente oro
       if (oroDisponible < precio) {
-        return res.status(400).send('No tienes suficiente oro para realizar esta compra');
+        console.error('El estudiante no tiene suficiente oro:', { id_estudiante, oroDisponible, precio });
+        return res.status(400).json({ message: 'No tienes suficiente oro para realizar esta compra.' });
       }
 
       // Restar el oro al estudiante
@@ -544,7 +545,7 @@ app.post('/comprar', (req, res) => {
       db.query(queryActualizarOro, [nuevoOro, id_estudiante], (err, result) => {
         if (err) {
           console.error('Error al actualizar el oro del estudiante:', err);
-          return res.status(500).send('Error al actualizar el oro');
+          return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
         }
 
         // Registrar la compra en la tabla 'compras'
@@ -552,11 +553,14 @@ app.post('/comprar', (req, res) => {
         db.query(queryCompra, [id_estudiante, id_articulo], (err, result) => {
           if (err) {
             console.error('Error al registrar la compra:', err);
-            return res.status(500).send('Error al registrar la compra');
+            return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
           }
 
-          // Responder con éxito
-          res.json({ success: true, message: 'Compra realizada con éxito' });
+          // Solo mostrar el mensaje en consola
+          console.log('Compra realizada con éxito');
+
+          // Responder con el mensaje de éxito
+          res.status(200).json({ message: 'Compra realizada con éxito' });
         });
       });
     });
