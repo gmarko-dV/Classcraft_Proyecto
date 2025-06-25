@@ -141,7 +141,7 @@ app.get('/dashboard', (req, res) => {
         u.nombre, u.apellido, u.id AS student_id, 
         e.oro, e.personaje, e.hp, e.xp, 
         c.nombre AS clase, s.nombre AS seccion,
-        a.nombre AS articulo_comprado
+        a.nombre AS articulo_comprado, a.url_imagen
       FROM estudiantes e
       INNER JOIN usuarios u ON e.id_usuario = u.id
       LEFT JOIN clase_estudiantes ce ON e.id_usuario = ce.id_estudiante
@@ -161,7 +161,7 @@ app.get('/dashboard', (req, res) => {
       res.render('dashboard-student', { user: req.session.user, student });
     });
   } else {
-    res.status(403).send('Acco no autorizado');
+    res.status(403).send('Acceso no autorizado');
   }
 });
 
@@ -205,7 +205,7 @@ app.post('/create-class', (req, res) => {
       return res.status(500).send('Error al crear clase');
     }
 
-    // Después de crear la clase, comprobamos si el profesor tiene más clases
+    // Después de crear la clase, obtener todas las clases del profesor
     const queryClasses = 'SELECT * FROM clases WHERE id_profesor = ?';
     db.query(queryClasses, [req.session.user.id], (err, classes) => {
       if (err) {
@@ -213,8 +213,9 @@ app.post('/create-class', (req, res) => {
         return res.status(500).send('Error al obtener clases');
       }
 
-      // Si el profesor no tiene clases, mostramos el botón para crear una nueva clase
       let showCreateClassButton = false;
+      
+      // Si el profesor no tiene clases asignadas, mostramos el botón para crear una nueva clase
       if (classes.length === 0) {
         showCreateClassButton = true;
       }
@@ -229,10 +230,70 @@ app.post('/create-class', (req, res) => {
 
         const subject = result.length > 0 ? result[0].asignatura : 'Sin asignatura asignada';
 
-        res.render('dashboard-teacher', {
-          user: req.session.user,
-          showCreateClassButton, // Pasar la variable para mostrar el botón si no tiene clases
-          subject // Pasar la asignatura al dashboard
+        // Si el profesor tiene clases, obtenemos las secciones y estudiantes
+        const classIds = classes.map(classItem => classItem.id);  // Obtener todos los IDs de las clases del profesor
+
+        if (classIds.length === 0) {
+          return res.render('dashboard-teacher', {
+            user: req.session.user,
+            showCreateClassButton,
+            message: 'No tienes clases asignadas. Puedes crear una nueva clase.',
+            subject
+          });
+        }
+
+        const querySections = 'SELECT * FROM secciones WHERE id_clase IN (?)';
+        db.query(querySections, [classIds], (err, sections) => {
+          if (err) {
+            console.error('Error al obtener secciones: ', err);
+            return res.status(500).send('Error al obtener secciones');
+          }
+
+          // Obtener los estudiantes asociados a las clases y secciones
+          const queryStudents = `
+            SELECT 
+              ce.id_clase, 
+              ce.id_seccion, 
+              u.nombre, 
+              u.apellido, 
+              u.id AS student_id
+            FROM 
+              clase_estudiantes ce
+            INNER JOIN usuarios u ON ce.id_estudiante = u.id
+            WHERE 
+              ce.id_clase IN (?)`;
+
+          db.query(queryStudents, [classIds], (err, students) => {
+            if (err) {
+              console.error('Error al obtener estudiantes: ', err);
+              return res.status(500).send('Error al obtener estudiantes');
+            }
+
+            // Agrupar estudiantes por clase y sección (MISMA ESTRUCTURA QUE EN GET)
+            const studentsByClass = classes.map(classItem => {
+              const classSections = sections.filter(section => section.id_clase === classItem.id);
+              const classStudents = students.filter(student => student.id_clase === classItem.id);
+
+              const sectionsWithStudents = classSections.map(section => {
+                return {
+                  section: section,
+                  students: classStudents.filter(student => student.id_seccion === section.id)
+                };
+              });
+
+              return {
+                class: classItem,  
+                sections: sectionsWithStudents
+              };
+            });
+
+            res.render('dashboard-teacher', { 
+              user: req.session.user, 
+              studentsByClass,  
+              showCreateClassButton, 
+              subject 
+            });
+          });
         });
       });
     });
@@ -518,7 +579,11 @@ app.post('/comprar', (req, res) => {
   db.query(queryArticulo, [id_articulo], (err, result) => {
     if (err) {
       console.error('Error al obtener el precio del artículo:', err);
-      return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
+      return res.status(500).send('Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.');
+    }
+
+    if (result.length === 0) {
+      return res.status(400).send('Artículo no encontrado.');
     }
 
     const precio = result[0].precio;
@@ -528,7 +593,12 @@ app.post('/comprar', (req, res) => {
     db.query(queryOro, [id_estudiante], (err, result) => {
       if (err) {
         console.error('Error al obtener el oro del estudiante:', err);
-        return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
+        return res.status(500).send('Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.');
+      }
+
+      if (result.length === 0) {
+        console.error('Estudiante no encontrado:', id_estudiante);
+        return res.status(400).send('Estudiante no encontrado.');
       }
 
       const oroDisponible = result[0].oro;
@@ -536,7 +606,7 @@ app.post('/comprar', (req, res) => {
       // Verificar si el estudiante tiene suficiente oro
       if (oroDisponible < precio) {
         console.error('El estudiante no tiene suficiente oro:', { id_estudiante, oroDisponible, precio });
-        return res.status(400).json({ message: 'No tienes suficiente oro para realizar esta compra.' });
+        return res.status(400).send('No tienes suficiente oro para realizar esta compra.');
       }
 
       // Restar el oro al estudiante
@@ -545,7 +615,7 @@ app.post('/comprar', (req, res) => {
       db.query(queryActualizarOro, [nuevoOro, id_estudiante], (err, result) => {
         if (err) {
           console.error('Error al actualizar el oro del estudiante:', err);
-          return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
+          return res.status(500).send('Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.');
         }
 
         // Registrar la compra en la tabla 'compras'
@@ -553,20 +623,19 @@ app.post('/comprar', (req, res) => {
         db.query(queryCompra, [id_estudiante, id_articulo], (err, result) => {
           if (err) {
             console.error('Error al registrar la compra:', err);
-            return res.status(500).json({ message: 'Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.' });
+            return res.status(500).send('Ocurrió un error al procesar tu compra. Por favor, intenta nuevamente.');
           }
 
           // Solo mostrar el mensaje en consola
           console.log('Compra realizada con éxito');
 
-          // Responder con el mensaje de éxito
-          res.status(200).json({ message: 'Compra realizada con éxito' });
+          // Responder con éxito (sin contenido innecesario en la respuesta)
+          res.status(200).send('Compra realizada con éxito');
         });
       });
     });
   });
 });
-
 
 // Escuchar en el puerto 3000
 app.listen(port, () => {
