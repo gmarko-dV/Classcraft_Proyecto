@@ -7,7 +7,7 @@ Este proyecto es un sistema web educativo inspirado en **Classcraft**, diseñado
 - 🟩 Node.js (Express)
 - 🐬 MySQL
 - 🌐 HTML5
-- 🎨 CSS3 (con o sin frameworks)
+- 🎨 CSS3 
 - 🧠 JavaScript
 
 ## ⚙️ Requisitos
