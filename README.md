@@ -27,16 +27,16 @@ Este proyecto es un sistema web educativo inspirado en **Classcraft**, diseñado
 git clone https://github.com/gmarko-dV/Classcraft_Proyecto.git
 cd Classcraft_Proyecto
 
-2. Instala las dependencias
+###2. Instala las dependencias
 npm install
-3. Importa la base de datos
+###3. Importa la base de datos
 Ejecuta el archivo script-classscraft.sql que se encuentra en la raíz del proyecto:
-4. Verifica la conexión a MySQL
+###4. Verifica la conexión a MySQL
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'tucontraseña',
   database: 'classcraft'
 });
-5. Ejecuta el servidor
+###5. Ejecuta el servidor
 node server.js
